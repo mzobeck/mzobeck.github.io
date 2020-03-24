@@ -1,0 +1,17 @@
+name: "US COVID-19 Trends"
+navbar:
+  title: "US COVID-19 Trends"
+  left:
+    - text: "About"
+      href: about.html
+    - text: "Github"
+      href: https://github.com/mzobeck/covid_trends
+    - text: "Twitter"
+      href: https://twitter.com/MarkZobeck
+output_dir: "."
+output:
+  html_document:
+    theme: yeti
+    highlight: textmate
+#    include:
+#      after_body: _footer.html
