@@ -53,7 +53,7 @@ The utility I hope you take from this report is in looking at trends and compari
 **Wrong:** "I can extend this line I see out a week or two into future!" (MORE DISTANT FUTURE PREDICTIONS QUICKLY BECOME UNRELIABLE!)  
 **Right:** "Perhaps this *long term trend* tells me something about the *next few days*."  
 
-**Wrong:** "I am not an Epidemiologist, but I like number and, I mean, data are data so wutever. I'm going to use these graphs and post an explainer on Medium!" (PLEASE, PLEASE, PLEASE DON'T! (Unless you are indeed an infectious epidemiologist, then by all means go for it.))    
+**Wrong:** "I am not an Epidemiologist, but I like number and, I mean, data are data. I'm going to use these graphs and post an explainer on Medium!" (PLEASE, PLEASE, PLEASE DON'T! (Unless you are indeed an infectious epidemiologist, then by all means go for it.))    
 **Right:** "These are interesting pieces of information that help me understand my relative context, but *I am still going to listen to federal, state, and local advice about how to respond to COVID-19*, and I am NOT going to write an explainer on Medium."    
 
 **Second to last disclaimer:** I myself have some training in epidemiology but am not an epidemiologist. I make no attempt here to model or predict the course of the pandemic. This is purely a descriptive project from publically available data. I will give a few thoughts below of the highlights of what I see, but I leave it to the readers to draw their own conclusions. And of course, none of this is medical advice. For relevant questions about COVID-19 precautions, testing, and treatment, contact your state or local health department. 
