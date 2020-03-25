@@ -14,4 +14,4 @@ output:
     theme: yeti
     highlight: textmate
 #    include:
-#      after_body: _footer.html
+#      after_body: _footer.html 
