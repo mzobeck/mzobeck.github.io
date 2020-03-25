@@ -379,24 +379,13 @@ div.tocify {
 
 <div id="welcome-to-us-covid-19-trends" class="section level1">
 <h1><strong>Welcome to US COVID-19 Trends</strong></h1>
-<p>This website is intended as a reference to track US regional trends in COVID-19 cases and deaths. It uses data from <a href="https://covidtracking.com/">The COVID Tracking Project</a> for state-level data and the <a href="https://coronadatascraper.com/#home">Corona Data Scraper</a> for county-level data. This website does not curate the data, only reports what others are gathering. If you think there are problems with the data themselves, please route feedback to the appropriate source. If you have a question about the graphs or a suggested change in the representation of the data, then feel free to <a href="mailto:%20mark.zobeck@ghccpod.com">email me</a>.</p>
+<p>This website is intended as a reference to track US regional trends in COVID-19 cases and deaths.</p>
 <p><strong>Before looking at the graphs below, please read this one HUGE caution</strong></p>
 <div id="these-data-are-wrong" class="section level4">
 <h4><strong>THESE DATA ARE WRONG</strong></h4>
-<p>By that, I mean that the data are not <strong>reality</strong> in the sense that most people want. They <strong>do not</strong> tell us the <strong>actual</strong> number of cases and deaths per day due to COVID-19. <strong>They are a super-dirty, extremely-noisy, very-wrong estimates.</strong> These data come from various sources, but primarily the Departments of Health for the relevant states. There inevitably are missed cases, lags in reporting, etc, etc. For example as of the day I am writing this, the Texas DSHS reports that there are 352 COVID-19 cases in Texas, while a local news organization is reporting 826 cases. The difference comes from how cases are reported, the timeliness of updates, and the sources the news organization are drawing rom. Let this serve as an example that for every data point on the graphs below, there is untold <strong>variability</strong> that the graphs do not capture. <strong>To be safe, for now assume the case numbers and deaths are wild underestimates</strong>. As the US improves its testing capabilities, I expect these numbers to be somewhat more reliable</p>
-<p><strong>If the data are so dirty, then what good is this website?</strong><br />
-The utility I hope you take from this report is in looking at trends and comparisons to other states or counties. Basically, at some point you want to see the number of new cases per day go down and not up in your state. These long term trends will help people gauge the relative situation in their state compared to states that are known to be doing well or poorly. The first thing lost in the panic of a pandemic is a sense of proportion, and I hope this report give people a clearer picture of what the relevant trends are over time in their region.</p>
-<p><strong>Recap - Wrong and Right Statements about these Data</strong></p>
-<p><strong>Wrong:</strong> “This graph tells me there are X number of cases in my state!” (NO IT DOESN’T!)<br />
-<strong>Right:</strong> “This graph tells me there are X number of <em>reported</em> cases in my state.”</p>
-<p><strong>Wrong:</strong> “I’m concerned about this change from one day to the next day on this graph!” (TOO SHORT TO DRAW CONLCUSIONS!)<br />
-<strong>Right:</strong> “I’m concerned about this trend I see <em>over several weeks</em>.”</p>
-<p><strong>Wrong:</strong> “I can extend this line I see out a week or two into future!” (MORE DISTANT FUTURE PREDICTIONS QUICKLY BECOME UNRELIABLE!)<br />
-<strong>Right:</strong> “Perhaps this <em>long term trend</em> tells me something about the <em>next few days</em>.”</p>
-<p><strong>Wrong:</strong> “I am not an Epidemiologist, but I like number and, I mean, data are data so wutever. I’m going to use these graphs and post an explainer on Medium!” (PLEASE, PLEASE, PLEASE DON’T! (Unless you are indeed an infectious epidemiologist, then by all means go for it.))<br />
-<strong>Right:</strong> “These are interesting pieces of information that help me understand my relative context, but <em>I am still going to listen to federal, state, and local advice about how to respond to COVID-19</em>, and I am NOT going to write an explainer on Medium.”</p>
-<p><strong>Second to last disclaimer:</strong> I myself have some training in epidemiology but am not an epidemiologist. I make no attempt here to model or predict the course of the pandemic. This is purely a descriptive project from publically available data. I will give a few thoughts below of the highlights of what I see, but I leave it to the readers to draw their own conclusions. And of course, none of this is medical advice. For relevant questions about COVID-19 precautions, testing, and treatment, contact your state or local health department.</p>
-<p><strong>Last disclaimer:</strong> This website was last updated at <strong>2020-03-25 10:06:37</strong>. I intend to update it daily. I also hope to continue to expand this website with more states and counties as time permits.</p>
+<p>By that, I mean that the data are not <strong>reality</strong> in the sense that most people want. They <strong>do not</strong> tell us the <strong>actual</strong> number of cases and deaths per day due to COVID-19. <strong>They are a super-dirty, extremely-noisy, very-wrong best attempts at measuring cases.</strong> They are most certainly underestimates of the true case load. The graphs are best interpreted looking at the direction of the states’ long term trends and not as reliable reports of what is going on right now at this very moment. They are most certainly underestimates of the true case load. That being said, it is also amazing we have this caliber of data at all, even if there is inevitable noise. The people aggregating these numbers doing an incredible job and have played an important role in managing the crisis!</p>
+<p><strong><a href="http://www.uscovidtrends.com/about.html">If this is your first time here, click here to read the longer caution about data interpretation.</a></strong></p>
+<p><strong>Note:</strong> This website was last updated at <strong>2020-03-25 17:08:20</strong>. I intend to update it daily. I also hope to continue to expand this website with more states and counties as time permits.</p>
 <p>With that, I wish you happy and cautious data gazing!<br />
 <strong>Mark Zobeck MD, MPH</strong></p>
 </div>
@@ -550,7 +539,8 @@ The utility I hope you take from this report is in looking at trends and compari
 </div>
 <div id="counties" class="section level1">
 <h1><strong>Counties</strong></h1>
-<p>Note that instead of days since 10th case, the <code>x-axis</code> is not days since reported 1st case.</p>
+<p><em>Important Note</em>: On 3-22-20 and 3-25-20, the data sources for how the county level data were reported changed. Please be cautious in interpreting the recent trends as they may look steeper due to differences in data reporting.</p>
+<p>Note: that instead of days since 10th case, the <code>x-axis</code> is now days since reported 1st case.</p>
 <div id="texas-1" class="section level2">
 <h2><strong>Texas</strong></h2>
 <div id="cumulative-cases-per-day-for-the-top-10-counties" class="section level3 tabset tabset-fade tabset-pills">
@@ -568,6 +558,7 @@ The utility I hope you take from this report is in looking at trends and compari
 </div>
 <div id="houston-metro-area" class="section level1">
 <h1><strong>Houston Metro Area</strong></h1>
+<p><em>Important Note</em>: On 3-22-20 and 3-25-20, the data sources for how the county level data were reported changed. Please be cautious in interpreting the recent trends as they may look steeper due to differences in data reporting.</p>
 <div id="cumulative-cases-for-the-houston-metro-area" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Cases For the Houston Metro Area</h3>
 <div id="prevalence-5" class="section level4">
