@@ -2,6 +2,8 @@ name: "US COVID-19 Trends"
 navbar:
   title: "US COVID-19 Trends"
   left:
+    - text: "About"
+      href: about.html
     - text: "Github"
       href: https://github.com/mzobeck/covid_trends
     - text: "Twitter"
