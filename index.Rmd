@@ -199,7 +199,7 @@ This website is intended as a reference to track US regional trends in COVID-19 
 
 **Before looking at the graphs below, please read this one HUGE caution**  
 
-#### **THESE DATA ARE WRONG**  
+##### **THESE DATA ARE WRONG**  
 By that, I mean that the data are not **reality** in the sense that most people want. They **do not** tell us the **actual** number of cases and deaths per day due to COVID-19. **They are a super-dirty, extremely-noisy, very-wrong best attempts at measuring cases.** They are most certainly underestimates of the true case load. The graphs are best interpreted looking at the direction of the states' long term trends and not as reliable reports of what is going on right now at this very moment. They are most certainly underestimates of the true case load. That being said, it is also amazing we have this caliber of data at all, even if there is inevitable noise. The people aggregating these numbers doing an incredible job and have played an important role in managing the crisis! 
 
 **[If this is your first time here, click here to read the longer caution about data interpretation.](http://www.uscovidtrends.com/about.html)**  
