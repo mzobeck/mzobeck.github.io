@@ -1,5 +1,6 @@
 ---
 title: "About"
+author: "By Mark Zobeck, MD, MPH"
 output:
   html_document:
     df_print: paged

@@ -9,6 +9,7 @@ output:
       collapsed: TRUE
       smooth_scroll: TRUE
     toc_depth: 3
+
 ---
 
 ```{r setup, include=FALSE}
