@@ -1,41 +1,25 @@
 ---
-title: "About"
+title: "Welcome to US COVID-19 Trends"
 author: "By Mark Zobeck, MD, MPH"
 output:
   html_document:
     df_print: paged
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = F)
-knitr::opts_chunk$set(warning = F)
-knitr::opts_chunk$set(echo=FALSE) 
- 
-library(tidyverse)
-library(readxl)
-library(janitor)
-library(data.table)
-library(lubridate)
-library(naniar)
-library(knitr)
-library(kableExtra)
-library(ggdag)
-library(randomForest)
-library(brms)
-library(bayesplot)
-library(cowplot)
-library(skimr)
-library(ggthemes)
-library(httr)
-library(rjson)
-library(jsonlite)
-library(RCurl)
-```
+---
 
-# **Welcome to US COVID-19 Trends** 
-This website is intended as a reference to track US regional trends in COVID-19 cases and deaths. It uses data from [The COVID Tracking Project](https://covidtracking.com/) for state-level data and the [Johns Hopkins University COVID-19 Global Cases dashboard](https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6) for county-level data. This website does not curate the data, only reports what others are gathering. If you think there are problems with the data themselves, please route feedback to the appropriate source. If you have a question about the graphs or a suggested change in the representation of the data, then feel free to [email me](mailto: mark.zobeck@ghccpod.com). 
+This website is intended as a reference to track US regional trends in COVID-19 cases and deaths. This website does not curate the data, only reports what others are gathering. If you think there are problems with the data themselves, please route feedback to the appropriate source. If you have a question about the graphs or a suggested change in the representation of the data, then feel free to [email me](mailto: mark.zobeck@ghccpod.com).   
 
-**Before looking at the graphs below, please read this one HUGE caution**  
+**Data Sources:**  
+
+1. Current Source: [Johns Hopkins University COVID-19 Global Cases Dashboard](https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)
+    + [JHU Github](https://github.com/CSSEGISandData/COVID-19) 
+2. Previous source (for data prior to 3-22-2020)
+    + [The COVID Tracking Project](https://covidtracking.com/)
+    + [Corona Data Scraper](https://coronadatascraper.com/#home)
+    
+    
+**Before looking at the graphs, please read this one HUGE caution**  
 
 #### **THESE DATA ARE WRONG**  
 By that, I mean that the data are not **reality** in the sense that most people want. They **do not** tell us the **actual** number of cases and deaths per day due to COVID-19. **They are a super-dirty, extremely-noisy, very-wrong, best attempts at measuring cases.** These data come from various sources, but primarily the Departments of Health for the relevant states. There inevitably are missed cases, lags in reporting, etc, etc. For example as of the day I am writing this, the Texas DSHS reports that there are 352 COVID-19 cases in Texas, while a local news organization is reporting 826 cases. The difference comes from how cases are reported, the timeliness of updates, and the sources the news organization are drawing rom. Let this serve as an example that for every data point on the graphs below, there is untold **variability** that the graphs do not capture. **To be safe, for now assume the case numbers and deaths are wild underestimates**. As the US improves its testing capabilities, I expect these numbers to be somewhat more reliable. That being said, it is also amazing we have this caliber of data at all, even if there is inevitable noise. The people aggregating these numbers doing an incredible job and have played an important role in managing the crisis! 
@@ -59,7 +43,8 @@ The utility I hope you take from this report is in looking at trends and compari
 
 **Second to last disclaimer:** I myself have some training in epidemiology but am not an epidemiologist. I make no attempt here to model or predict the course of the pandemic. This is purely a descriptive project from publically available data. I will give a few thoughts below of the highlights of what I see, but I leave it to the readers to draw their own conclusions. And of course, none of this is medical advice. For relevant questions about COVID-19 precautions, testing, and treatment, contact your state or local health department. 
 
-**Last disclaimer:** This website was last updated at **`r now()`**. I intend to update it daily. I also hope to continue to expand this website with more states and counties as time permits.
+**Last disclaimer:** This website was last updated at **`r format(Sys.time(), "%H:%M %m-%d-%Y")`**. I intend to update it daily. I also hope to continue to expand this website with more states and counties as time permits.
 
 With that, I wish you happy and cautious data gazing!  
 **Mark Zobeck MD, MPH**
+
