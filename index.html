@@ -3,23 +3,7 @@
 <html>
 
 <head>
-<!-- Global site tag (gtag.js) - Google Analytics -->
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-78251343-4"></script>
-
-<script>
-
-  window.dataLayer = window.dataLayer || [];
-
-  function gtag(){dataLayer.push(arguments);}
-
-  gtag('js', new Date());
-
-
-
-  gtag('config', 'UA-78251343-4');
-
-</script>
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
@@ -370,7 +354,16 @@ div.tocify {
   <a href="about.html">About</a>
 </li>
 <li>
+  <a href="midwest.html">Midwest</a>
+</li>
+<li>
+  <a href="northeast.html">Northeast</a>
+</li>
+<li>
   <a href="south.html">South</a>
+</li>
+<li>
+  <a href="west.html">West</a>
 </li>
 <li>
   <a href="https://github.com/mzobeck/covid_trends">Github</a>
@@ -400,25 +393,34 @@ div.tocify {
 <div id="introduction" class="section level1">
 <h1><strong>Introduction</strong></h1>
 <p>This website is intended as a reference to track US regional trends in COVID-19 cases and deaths.<br />
-Last update: <strong>23:39 03-30-2020</strong><br />
+Last update: <strong>09:30 03-31-2020</strong><br />
 Before looking at the graphs below, please read this one HUGE caution:</p>
 <div id="these-data-are-wrong" class="section level5">
 <h5><strong>THESE DATA ARE WRONG</strong></h5>
 <p>By that, I mean that the data are not <strong>reality</strong> in the sense that most people want. They <strong>do not</strong> tell us the <strong>actual</strong> number of cases and deaths per day due to COVID-19. <strong>They are a super-dirty, extremely-noisy, very-wrong best attempts at measuring cases.</strong> They are most certainly underestimates of the true case load.</p>
 <p>The graphs are best interpreted looking at the direction of the states’ long term trends and not as reliable reports of what is going on right now at this very moment. That being said, it is also amazing we have this caliber of data at all, even if there is inevitable noise. The people aggregating these numbers doing an incredible job and have played an important role in managing the crisis!</p>
 <p><strong><a href="http://www.uscovidtrends.com/about.html">If this is your first time here, please read the longer warning about interpreting these data.</a></strong></p>
+<p><strong>Update 3/31/2020:</strong> All states are now up on the website and sorted by US Census Bureau. If you think your state is weirdly categorized, blame the Census Bureau. Who know Delaware is in the south.<br />
+<a href="https://www.uscovidtrends.com/midwest.html">The Midwest States</a><br />
+<a href="https://www.uscovidtrends.com/northeast.html">The Northeast States</a><br />
+<a href="https://www.uscovidtrends.com/south.html">The Southern States</a><br />
+<a href="https://www.uscovidtrends.com/west.html">The Western States</a></p>
 <p>With that, I wish you happy and cautious data gazing!<br />
 <strong>Mark Zobeck MD, MPH</strong></p>
 <hr />
+<p><em>Last notes:</em></p>
+<ul>
+<li><p>A refresher about <code>log</code> scales. On the <code>y-axis</code> you will sometimes see it in <code>log10</code> scale. This makes it so that the space between 0-10, 10-100, 100-1000, and so forth are the same distance. This helps to visualize trends of things that happen explosively, like the exponential growth of a virus. I provide both an untransformed and <code>log10</code> transformed scale below.</p></li>
+<li><p>The <code>x-axis</code> below should be interpreted as “days since the state reported its 10th case/death (depending on chart)”. This helps to show where each state is from a standard reference point in time and facilitates better comparisons of trends.</p></li>
+</ul>
+<hr />
 </div>
 </div>
-<div id="states" class="section level1">
-<h1><strong>States</strong></h1>
-<p>A refresher about <code>log</code> scales: On the <code>y-axis</code> you will sometimes see it in <code>log10</code> scale. This makes it so that the space between 0-10, 10-100, 100-1000, and so forth are the same distance. This helps to visualize trends of things that happen explosively, like the exponential growth of a virus. I provide both an untransformed and <code>log10</code> transformed scale below.</p>
+<div id="worst-affected-states" class="section level1">
+<h1><strong>Worst Affected States</strong></h1>
 <div id="the-top-10" class="section level2">
 <h2><strong>The Top 10</strong></h2>
-<p>Here are reports for the top 10 states by reported number of cases. These are the states where COVID-19 seems to be most active. I advise that you pay attention to New York because of its current severity (what the rest of the United States could become?), and Washington and California because they had an early high case load and took earlier measures such as “social distancing” and cancelling larger gatherings, and Luisiana, which seems to have a high reported case load for its size.</p>
-<p>The <code>x-axis</code> below should be interpreted as “days since the state reported its 10th case”. This helps to show where each state is from a standard reference point in time and facilitates better comparisons of trends.</p>
+<p>Here are reports for the top 10 states by reported number of cases. These are the states where COVID-19 seems to be most active.</p>
 <div id="cumulative-cases" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Cases</h3>
 <div id="prevalence" class="section level4">
@@ -427,18 +429,18 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 </div>
 <div id="logprevalence" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" width="960" /></p>
 </div>
 <div id="logdeaths" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-cases-per-100000-people" class="section level3 tabset tabset-fade tabset-pills">
@@ -446,44 +448,44 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <p>These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.</p>
 <div id="prevalence-1" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-1" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-per-100000-people" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths per 100,000 People</h3>
 <div id="deaths-1" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-1" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-cases-per-day" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Cases per Day</h3>
 <div id="new-cases" class="section level4">
 <h4>New Cases</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-deaths-per-day" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Deaths per Day</h3>
 <div id="new-deaths" class="section level4">
 <h4>New Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="960" /></p>
 </div>
 <div id="lognew-deaths" class="section level4">
 <h4>Log(New Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -493,22 +495,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-2" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-15-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-14-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-2" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-15-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-1" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-2" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-17-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-2" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-17-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-cases-per-100000-people-1" class="section level3 tabset tabset-fade tabset-pills">
@@ -516,44 +518,44 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <p>These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.</p>
 <div id="prevalence-3" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-3" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-20-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-per-100000-people-1" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths per 100,000 People</h3>
 <div id="deaths-3" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-21-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-20-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-3" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-22-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-21-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-cases-per-day-1" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Cases per Day</h3>
 <div id="new-cases-1" class="section level4">
 <h4>New Cases</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-23-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-22-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases-1" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-24-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-23-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-deaths-by-day" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Deaths by Day</h3>
 <div id="new-deaths-1" class="section level4">
 <h4>New Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-25-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-24-1.png" width="960" /></p>
 </div>
 <div id="lognew-deaths-1" class="section level4">
 <h4>Log(New Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-26-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-25-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -563,22 +565,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-4" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-28-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-27-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-4" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-29-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-28-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-2" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-4" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-30-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-29-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-4" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-31-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-30-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-cases-per-100000-people-2" class="section level3 tabset tabset-fade tabset-pills">
@@ -586,44 +588,44 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <p>These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.</p>
 <div id="prevalence-5" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-32-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-31-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-5" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-33-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-32-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-per-100000-people-2" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths per 100,000 People</h3>
 <div id="deaths-5" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-34-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-33-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-5" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-35-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-34-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-cases-per-day-2" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Cases per Day</h3>
 <div id="new-cases-2" class="section level4">
 <h4>New Cases</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-36-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-35-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases-2" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-37-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-36-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-deaths-by-day-1" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Deaths by Day</h3>
 <div id="new-deaths-2" class="section level4">
 <h4>New Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-38-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-37-1.png" width="960" /></p>
 </div>
 <div id="lognew-deaths-2" class="section level4">
 <h4>Log(New Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-39-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-38-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -633,22 +635,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-6" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-41-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-40-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-6" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-42-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-41-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-3" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-6" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-43-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-42-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-6" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-44-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-43-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-cases-per-100000-people-3" class="section level3 tabset tabset-fade tabset-pills">
@@ -656,44 +658,44 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <p>These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.</p>
 <div id="prevalence-7" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-45-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-44-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-7" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-46-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-45-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-per-100000-people-3" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths per 100,000 People</h3>
 <div id="deaths-7" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-47-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-46-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-7" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-48-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-47-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-cases-per-day-3" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Cases per Day</h3>
 <div id="new-cases-3" class="section level4">
 <h4>New Cases</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-49-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-48-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases-3" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-50-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-49-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-deaths-by-day-2" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Deaths by Day</h3>
 <div id="new-deaths-3" class="section level4">
 <h4>New Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-51-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-50-1.png" width="960" /></p>
 </div>
 <div id="lognew-deaths-3" class="section level4">
 <h4>Log(New Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-52-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-51-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -703,22 +705,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-8" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-54-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-53-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-8" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-55-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-54-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-4" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-8" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-56-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-55-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-8" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-57-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-56-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-cases-per-100000-people-4" class="section level3 tabset tabset-fade tabset-pills">
@@ -726,44 +728,44 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <p>These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.</p>
 <div id="prevalence-9" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-58-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-57-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-9" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-59-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-58-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-per-100000-people-4" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths per 100,000 People</h3>
 <div id="deaths-9" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-60-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-59-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-9" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-61-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-60-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-cases-per-day-4" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Cases per Day</h3>
 <div id="new-cases-4" class="section level4">
 <h4>New Cases</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-62-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-61-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases-4" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-63-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-62-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-deaths-by-day-3" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Deaths by Day</h3>
 <div id="new-deaths-4" class="section level4">
 <h4>New Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-64-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-63-1.png" width="960" /></p>
 </div>
 <div id="lognew-deaths-4" class="section level4">
 <h4>Log(New Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-65-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-64-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -773,22 +775,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-10" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-67-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-66-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-10" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-68-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-67-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-5" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-10" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-69-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-68-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-10" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-70-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-69-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-cases-per-100000-people-5" class="section level3 tabset tabset-fade tabset-pills">
@@ -796,44 +798,44 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <p>These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.</p>
 <div id="prevalence-11" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-71-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-70-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-11" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-72-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-71-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-per-100000-people-5" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths per 100,000 People</h3>
 <div id="deaths-11" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-73-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-72-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-11" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-74-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-73-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-cases-per-day-5" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Cases per Day</h3>
 <div id="new-cases-5" class="section level4">
 <h4>New Cases</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-75-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-74-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases-5" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-76-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-75-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-deaths-by-day-4" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Deaths by Day</h3>
 <div id="new-deaths-5" class="section level4">
 <h4>New Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-77-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-76-1.png" width="960" /></p>
 </div>
 <div id="lognew-deaths-5" class="section level4">
 <h4>Log(New Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-78-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-77-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -843,22 +845,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-12" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-80-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-79-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-12" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-81-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-80-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-6" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-12" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-82-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-81-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-12" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-83-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-82-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-cases-per-100000-people-6" class="section level3 tabset tabset-fade tabset-pills">
@@ -866,44 +868,44 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <p>These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.</p>
 <div id="prevalence-13" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-84-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-83-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-13" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-85-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-84-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-per-100000-people-6" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths per 100,000 People</h3>
 <div id="deaths-13" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-86-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-85-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-13" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-87-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-86-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-cases-per-day-6" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Cases per Day</h3>
 <div id="new-cases-6" class="section level4">
 <h4>New Cases</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-88-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-87-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases-6" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-89-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-88-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-deaths-by-day-5" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Deaths by Day</h3>
 <div id="new-deaths-6" class="section level4">
 <h4>New Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-90-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-89-1.png" width="960" /></p>
 </div>
 <div id="lognew-deaths-6" class="section level4">
 <h4>Log(New Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-91-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-90-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -913,22 +915,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-14" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-93-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-92-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-14" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-94-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-93-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-7" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-14" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-95-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-94-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-14" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-96-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-95-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-cases-per-100000-people-7" class="section level3 tabset tabset-fade tabset-pills">
@@ -936,44 +938,44 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <p>These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.</p>
 <div id="prevalence-15" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-97-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-96-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-15" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-98-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-97-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-per-100000-people-7" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths per 100,000 People</h3>
 <div id="deaths-15" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-99-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-98-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-15" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-100-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-99-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-cases-per-day-7" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Cases per Day</h3>
 <div id="new-cases-7" class="section level4">
 <h4>New Cases</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-101-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-100-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases-7" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-102-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-101-1.png" width="960" /></p>
 </div>
 </div>
 <div id="new-deaths-by-day-6" class="section level3 tabset tabset-fade tabset-pills">
 <h3>New Deaths by Day</h3>
 <div id="new-deaths-7" class="section level4">
 <h4>New Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-103-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-102-1.png" width="960" /></p>
 </div>
 <div id="lognew-deaths-7" class="section level4">
 <h4>Log(New Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-104-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-103-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -988,22 +990,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-16" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-105-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-104-1.png" width="960" /></p>
 </div>
 <div id="lognew-cases-8" class="section level4">
 <h4>Log(New Cases)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-106-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-105-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-8" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-16" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-107-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-106-1.png" width="960" /></p>
 </div>
 <div id="logdeaths-16" class="section level4">
 <h4>Log(Deaths)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-108-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-107-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -1013,22 +1015,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-17" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-109-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-108-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-16" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-110-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-109-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-9" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-17" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-111-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-110-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-17" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-112-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-111-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -1038,22 +1040,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-18" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-113-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-112-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-18" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-114-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-113-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-10" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-18" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-115-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-114-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-19" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-116-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-115-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -1063,22 +1065,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-19" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-117-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-116-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-20" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-118-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-117-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-11" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-19" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-119-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-118-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-21" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-120-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-119-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -1088,22 +1090,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-20" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-121-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-120-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-22" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-122-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-121-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-12" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-20" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-123-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-122-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-23" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-124-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-123-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -1113,22 +1115,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-21" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-125-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-124-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-24" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-126-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-125-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-13" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-21" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-127-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-126-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-25" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-128-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-127-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -1139,22 +1141,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-22" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-129-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-128-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-26" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-130-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-129-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-14" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-22" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-131-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-130-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-27" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-132-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-131-1.png" width="960" /></p>
 </div>
 </div>
 </div>
@@ -1165,22 +1167,22 @@ Before looking at the graphs below, please read this one HUGE caution:</p>
 <h3>Cumulative Cases</h3>
 <div id="prevalence-23" class="section level4">
 <h4>Prevalence</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-133-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-132-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-28" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-134-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-133-1.png" width="960" /></p>
 </div>
 </div>
 <div id="cumulative-deaths-15" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Cumulative Deaths</h3>
 <div id="deaths-23" class="section level4">
 <h4>Deaths</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-135-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-134-1.png" width="960" /></p>
 </div>
 <div id="logprevalence-29" class="section level4">
 <h4>Log(Prevalence)</h4>
-<p><img src="index_files/figure-html/unnamed-chunk-136-1.png" width="960" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-135-1.png" width="960" /></p>
 </div>
 </div>
 </div>

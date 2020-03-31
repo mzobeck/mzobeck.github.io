@@ -4,8 +4,14 @@ navbar:
   left:
     - text: "About"
       href: about.html
+    - text: "Midwest"
+      href: midwest.html
+    - text: "Northeast"
+      href: northeast.html
     - text: "South"
       href: south.html
+    - text: "West"
+      href: west.html
     - text: "Github"
       href: https://github.com/mzobeck/covid_trends
     - text: "Twitter"

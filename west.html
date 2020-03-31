@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="By Mark Zobeck, MD, MPH" />
+
+
+<title>US COVID-19 Trends</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 45px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h2 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h3 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h4 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h5 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h6 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">US COVID-19 Trends</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="midwest.html">Midwest</a>
+</li>
+<li>
+  <a href="northeast.html">Northeast</a>
+</li>
+<li>
+  <a href="south.html">South</a>
+</li>
+<li>
+  <a href="west.html">West</a>
+</li>
+<li>
+  <a href="https://github.com/mzobeck/covid_trends">Github</a>
+</li>
+<li>
+  <a href="https://twitter.com/MarkZobeck">Twitter</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">US COVID-19 Trends</h1>
+<h4 class="author">By Mark Zobeck, MD, MPH</h4>
+
+</div>
+
+
+<div id="the-west" class="section level1">
+<h1><strong>The West</strong></h1>
+<hr />
+<div id="the-top-10" class="section level2">
+<h2><strong>The Top 10</strong></h2>
+<div id="cumulative-cases" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-3-1.png" width="960" /></p>
+</div>
+<div id="logprevalence" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
+</div>
+<div id="logdeaths" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-6-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-1" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-7-1.png" width="960" /></p>
+</div>
+<div id="logcases" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-8-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-2" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-1" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-1" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-10-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-3" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-11-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-12-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-4" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-13-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-14-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-5" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="alaska" class="section level2">
+<h2><strong>Alaska</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-1" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-1" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-16-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-1" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-17-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-6" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-1" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-2" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-18-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-2" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-19-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-7" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-1" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-1" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-20-1.png" width="960" /></p>
+</div>
+<div id="logcases-1" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-21-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-8" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-1" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-3" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-22-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-3" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-23-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-9" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-1" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-1" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-24-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-1" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-25-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-10" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-1" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-1" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-26-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-1" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-27-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-11" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="arizona" class="section level2">
+<h2><strong>Arizona</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-2" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-2" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-29-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-2" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-30-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-12" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-2" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-4" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-31-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-4" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-32-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-13" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-2" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-2" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-33-1.png" width="960" /></p>
+</div>
+<div id="logcases-2" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-34-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-14" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-2" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-5" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-35-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-5" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-36-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-15" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-2" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-2" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-37-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-2" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-38-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-16" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-2" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-2" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-39-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-2" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-40-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-17" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="california" class="section level2">
+<h2><strong>California</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-3" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-3" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-42-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-3" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-43-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-18" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-3" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-6" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-44-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-6" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-45-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-19" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-3" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-3" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-46-1.png" width="960" /></p>
+</div>
+<div id="logcases-3" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-47-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-20" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-3" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-7" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-48-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-7" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-49-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-21" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-3" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-3" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-50-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-3" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-51-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-22" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-3" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-3" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-52-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-3" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-53-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-23" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="colorado" class="section level2">
+<h2><strong>Colorado</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-4" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-4" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-55-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-4" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-56-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-24" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-4" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-8" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-57-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-8" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-58-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-25" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-4" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-4" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-59-1.png" width="960" /></p>
+</div>
+<div id="logcases-4" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-60-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-26" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-4" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-9" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-61-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-9" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-62-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-27" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-4" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-4" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-63-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-4" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-64-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-28" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-4" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-4" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-65-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-4" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-66-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-29" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="hawaii" class="section level2">
+<h2><strong>Hawaii</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-5" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-5" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-68-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-5" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-69-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-30" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-5" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-10" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-70-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-10" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-71-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-31" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-5" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-5" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-72-1.png" width="960" /></p>
+</div>
+<div id="logcases-5" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-73-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-32" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-5" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-11" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-74-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-11" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-75-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-33" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-5" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-5" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-76-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-5" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-77-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-34" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-5" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-5" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-78-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-5" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-79-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-35" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="idaho" class="section level2">
+<h2><strong>Idaho</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-6" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-6" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-81-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-6" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-82-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-36" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-6" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-12" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-83-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-12" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-84-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-37" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-6" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-6" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-85-1.png" width="960" /></p>
+</div>
+<div id="logcases-6" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-86-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-38" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-6" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-13" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-87-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-13" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-88-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-39" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-6" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-6" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-89-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-6" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-90-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-40" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-6" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-6" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-91-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-6" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-92-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-41" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="montana" class="section level2">
+<h2><strong>Montana</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-7" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-7" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-94-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-7" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-95-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-42" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-7" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-14" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-96-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-14" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-97-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-43" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-7" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-7" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-98-1.png" width="960" /></p>
+</div>
+<div id="logcases-7" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-99-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-44" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-7" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-15" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-100-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-15" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-101-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-45" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-7" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-7" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-102-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-7" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-103-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-46" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-7" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-7" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-104-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-7" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-105-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-47" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="new-mexico" class="section level2">
+<h2><strong>New Mexico</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-8" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-8" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-107-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-8" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-108-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-48" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-8" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-16" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-109-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-16" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-110-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-49" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-8" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-8" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-111-1.png" width="960" /></p>
+</div>
+<div id="logcases-8" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-112-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-50" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-8" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-17" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-113-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-17" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-114-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-51" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-8" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-8" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-115-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-8" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-116-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-52" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-8" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-8" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-117-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-8" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-118-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-53" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="nevada" class="section level2">
+<h2><strong>Nevada</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-9" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-9" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-120-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-9" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-121-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-54" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-9" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-18" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-122-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-18" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-123-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-55" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-9" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-9" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-124-1.png" width="960" /></p>
+</div>
+<div id="logcases-9" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-125-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-56" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-9" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-19" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-126-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-19" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-127-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-57" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-9" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-9" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-128-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-9" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-129-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-58" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-9" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-9" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-130-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-9" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-131-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-59" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="oregon" class="section level2">
+<h2><strong>Oregon</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-10" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-10" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-133-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-10" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-134-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-60" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-10" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-20" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-135-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-20" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-136-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-61" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-10" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-10" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-137-1.png" width="960" /></p>
+</div>
+<div id="logcases-10" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-138-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-62" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-10" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-21" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-139-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-21" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-140-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-63" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-10" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-10" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-141-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-10" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-142-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-64" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-10" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-10" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-143-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-10" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-144-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-65" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="utah" class="section level2">
+<h2><strong>Utah</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-11" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-11" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-146-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-11" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-147-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-66" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-11" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-22" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-148-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-22" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-149-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-67" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-11" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-11" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-150-1.png" width="960" /></p>
+</div>
+<div id="logcases-11" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-151-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-68" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-11" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-23" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-152-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-23" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-153-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-69" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-11" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-11" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-154-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-11" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-155-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-70" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-11" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-11" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-156-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-11" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-157-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-71" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="washington" class="section level2">
+<h2><strong>Washington</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-12" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-12" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-159-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-12" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-160-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-72" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-12" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-24" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-161-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-24" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-162-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-73" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-12" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-12" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-163-1.png" width="960" /></p>
+</div>
+<div id="logcases-12" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-164-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-74" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-12" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-25" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-165-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-25" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-166-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-75" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-12" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-12" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-167-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-12" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-168-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-76" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-12" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-12" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-169-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-12" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-170-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-77" class="section level3 toc-ignore">
+<h3></h3>
+<hr />
+</div>
+</div>
+<div id="wyoming" class="section level2">
+<h2><strong>Wyoming</strong></h2>
+<p><a href="#header">Return to top</a></p>
+<div id="cumulative-cases-13" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases</h3>
+<div id="prevalence-13" class="section level4">
+<h4>Prevalence</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-172-1.png" width="960" /></p>
+</div>
+<div id="logprevalence-13" class="section level4">
+<h4>Log(Prevalence)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-173-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-78" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-13" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths</h3>
+<div id="deaths-26" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-174-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-26" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-175-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-79" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-cases-per-100000-people-13" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Cases per 100,000 People</h3>
+<div id="cases-13" class="section level4">
+<h4>Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-176-1.png" width="960" /></p>
+</div>
+<div id="logcases-13" class="section level4">
+<h4>Log(Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-177-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-80" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="cumulative-deaths-per-100000-people-13" class="section level3 tabset tabset-fade tabset-pills">
+<h3>Cumulative Deaths per 100,000 People</h3>
+<div id="deaths-27" class="section level4">
+<h4>Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-178-1.png" width="960" /></p>
+</div>
+<div id="logdeaths-27" class="section level4">
+<h4>Log(Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-179-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-81" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-cases-per-day-13" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Cases per Day</h3>
+<div id="new-cases-13" class="section level4">
+<h4>New Cases</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-180-1.png" width="960" /></p>
+</div>
+<div id="lognew-cases-13" class="section level4">
+<h4>Log(New Cases)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-181-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-82" class="section level3 toc-ignore">
+<h3></h3>
+<p><a href="#header">Return to top</a></p>
+</div>
+<div id="new-deaths-per-day-13" class="section level3 tabset tabset-fade tabset-pills">
+<h3>New Deaths per Day</h3>
+<div id="new-deaths-13" class="section level4">
+<h4>New Deaths</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-182-1.png" width="960" /></p>
+</div>
+<div id="lognew-deaths-13" class="section level4">
+<h4>Log(New Deaths)</h4>
+<p><img src="west_files/figure-html/unnamed-chunk-183-1.png" width="960" /></p>
+</div>
+</div>
+<div id="section-83" class="section level3 toc-ignore">
+<h3></h3>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
