@@ -1,0 +1,2063 @@
+---
+title: "US COVID-19 Trends"
+author: "By Mark Zobeck, MD, MPH"
+output:
+  html_document:
+    df_print: paged
+    toc: TRUE
+    toc_float:
+      collapsed: TRUE
+      smooth_scroll: TRUE
+    toc_depth: 3
+    fig_width: 10
+    fig_height: 7
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = F)
+knitr::opts_chunk$set(warning = F)
+knitr::opts_chunk$set(echo=FALSE) 
+ 
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(data.table)
+library(lubridate)
+library(naniar)
+library(knitr)
+library(kableExtra)
+library(ggdag)
+library(randomForest)
+library(brms)
+library(bayesplot)
+library(cowplot)
+library(skimr)
+library(ggthemes)
+library(httr)
+library(rjson)
+library(jsonlite)
+library(RCurl)
+library(ggrepel)
+
+#time index for daily updates
+#JHU turns over days at 1800
+
+if(as.numeric(format(Sys.time(), "%H")) < 18) {
+  today <- ymd(format(Sys.time(), "%Y-%m-%d"))
+} else {
+  today <- ymd(format(Sys.time(), "%Y-%m-%d")) + days(1)
+}
+  
+
+if(as.numeric(format(Sys.time(), "%H")) < 18) {
+  yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) - days(1)
+} else {
+  yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) 
+}
+
+```
+
+
+
+```{r}
+counties.pop <- read_csv("initial_files/counties_pop_fromscrape-200325.csv") %>% 
+  select(-lat, -long)
+
+state.abrv <- read_xlsx("initial_files/state_pop.xlsx") %>% 
+  clean_names() %>% 
+  select(state, abrv, region)
+
+state.pop <- read_xlsx("initial_files/state_pop.xlsx") %>%  
+  select(state = abrv, population, region)
+
+csse_csvs <- tibble(dates = list.files("csse_files")) %>% 
+  mutate(dates = ymd(str_extract(dates, "[:digit:]+-[:digit:]+-[:digit:]+")))
+
+states.counties.hist.pull <- read_csv(paste0("csse_files/states_counties_hist_",max(csse_csvs$dates),".csv")) %>% 
+  filter(!is.na(state)) #there are unassigned states from the past 
+
+
+if (!(yesterday %in% states.counties.hist.pull$date)) {
+  url.yest <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/", format(yesterday, "%m-%d-%Y"),".csv")
+  
+  csse.yesterday <- read_csv(url.yest) %>% 
+    clean_names() %>% 
+    rename(state = province_state) %>%
+    filter(country_region == "US") %>% 
+    left_join(state.abrv) %>% 
+    pivot_longer(confirmed:deaths, names_to = "type", values_to = "value") %>% 
+    select(state = abrv, county = admin2, date = last_update, type, value, lat, long) %>% 
+    left_join(counties.pop) %>% 
+    select(state, county, population, date, type, value, lat, long) %>% 
+    mutate(type = ifelse(str_detect(type, "confir"), "cases",type),
+           date = date(date))
+  
+  states.counties.hist <- states.counties.hist.pull %>% 
+    bind_rows(csse.yesterday)
+  
+  fwrite(states.counties.hist, paste0("csse_files/states_counties_hist_",yesterday,".csv"))
+} else {
+  states.counties.hist <- states.counties.hist.pull
+}
+
+states.counties <- states.counties.hist %>% 
+  filter(!is.na(state)) %>% 
+  group_by(date, state, county, type) %>% 
+  filter(value == max(value)) #I'm going to assume double entries are errors not additive
+
+
+# TX county data
+tx.county <- states.counties %>% 
+  filter(state == "TX" ) %>% 
+  filter(!is.na(county))
+
+#tx county cases first
+tx.county.cases <- tx.county %>% 
+  filter(type == "cases") %>% 
+  filter(value > 0) %>% 
+  group_by(county) %>% 
+  mutate(since1 = rank(date))
+
+txcounty.top10 <- tx.county.cases %>% 
+  filter(date == yesterday ) %>% 
+  arrange(desc(value)) %>% 
+  head(10)
+
+txcounty.top10.all <- tx.county.cases %>% 
+  filter(county %in% txcounty.top10$county)
+
+
+#tx county cases deaths
+
+d1.index <- tx.county.cases %>% 
+  select(county, date, since1)
+
+tx.county.deaths <- tx.county %>% 
+  filter(type == "deaths") %>% 
+  left_join(d1.index)
+
+txcounty.deaths.top10.all <- tx.county.deaths %>% 
+  filter(county %in% txcounty.top10$county)
+
+# houston data 
+houston.metro <- c("Harris", "Fort Bend", "Montgomery", "Galveston", "Brazoria", "Liberty", "Chambers", "Waller")  
+
+dfw.metro <- c("Collin", 
+"Dallas", 
+"Denton",
+"Ellis",
+"Hunt", 
+"Kaufman", 
+"Rockwall", 
+"Hood", 
+"Johnson", 
+"Parker", 
+"Somervell", 
+"Tarrant", 
+"Wise") 
+
+austin.metro <- c("Bastrop", "Caldwell", "Hays", "Travis","Williamson")
+san.antonio.metro <- c("Atascosa",
+"Bandera",
+"Bexar",
+"Comal",
+"Guadalupe",
+"Kendall",
+"Medina",
+"Wilson")
+
+waco.metro <-c("McLennan", "Falls")
+
+houston.metro.cases <- tx.county.cases %>% 
+  filter(county %in% houston.metro) 
+
+dfw.metro.cases <- tx.county.cases %>% 
+  filter(county %in% dfw.metro)
+
+austin.cases <- tx.county.cases %>% 
+  filter(county %in% austin.metro)
+
+sa.cases <- tx.county.cases %>% 
+  filter(county %in% san.antonio.metro)
+
+waco.cases <- tx.county.cases %>% 
+  filter(county %in% waco.metro)
+
+lbk.cases <- tx.county.cases %>% 
+  filter(county == "Lubbock")
+
+ep.cases <- tx.county.cases %>% 
+  filter(county == "El Paso")
+
+
+#Deaths 
+houston.metro.deaths<- tx.county.deaths %>% 
+  filter(county %in% houston.metro) 
+
+dfw.metro.deaths <- tx.county.deaths %>% 
+  filter(county %in% dfw.metro)
+
+austin.deaths <- tx.county.deaths %>% 
+  filter(county %in% austin.metro)
+
+sa.deaths <- tx.county.deaths %>% 
+  filter(county %in% san.antonio.metro)
+
+waco.deaths <- tx.county.deaths %>% 
+  filter(county %in% waco.metro)
+
+lbk.deaths <- tx.county.deaths %>% 
+  filter(county == "Lubbock")
+
+ep.deaths <- tx.county.deaths %>% 
+  filter(county == "El Paso")
+
+```
+
+
+```{r}
+# state level data --------------------------------------------------------------
+states.track.hist <- read_csv("initial_files/states_track_hist.csv")
+
+states.counties.forstates <- states.counties %>% 
+  filter(date >= as.Date("2020-03-22")) %>% 
+  select(-population, -lat, -long) %>% 
+  pivot_wider(id_cols = c("date", "state", "county"), names_from = "type", values_from = "value") %>% 
+  group_by(date, state) %>% 
+  summarise(positive = sum(cases),
+            death = sum(deaths))
+
+states.pos <- states.track.hist %>% 
+  bind_rows(states.counties.forstates) %>% 
+  filter(positive > 10) %>% 
+  group_by(state) %>% 
+  mutate(since10 = rank(date)) %>% 
+  left_join(state.pop) %>% 
+  mutate(pos100k = positive/population * 100000,
+         death100k = death/population * 100000)
+
+
+#remember this is for all states with > 10 cases only
+states.top10.today <- states.pos %>% 
+  filter(date == today ) %>% 
+  arrange(desc(positive)) %>% 
+  head(10)
+
+states.top10.yesterday <- states.pos %>% 
+  filter(date == yesterday ) %>% 
+  arrange(desc(positive)) %>% 
+  head(10)
+
+if (nrow(states.top10.today) > 0) {
+  states.top10 <- states.top10.today
+} else {
+  states.top10 <- states.top10.yesterday
+}
+
+states.top10.all <- states.pos %>% 
+  filter(state %in% states.top10$state)
+
+#top 20 for the state comparisons 
+states.top20.today <- states.pos %>% 
+  filter(date == today ) %>% 
+  arrange(desc(positive)) %>% 
+  head(20)
+
+states.top20.yesterday <- states.pos %>% 
+  filter(date == yesterday ) %>% 
+  arrange(desc(positive)) %>% 
+  head(20)
+
+
+if (nrow(states.top20.today) > 0) {
+  states.top20 <- states.top20.today
+} else {
+  states.top20 <- states.top20.yesterday
+}
+
+states.top20.all <- states.pos %>% 
+  filter(state %in% states.top20$state)
+
+states.top10.death <- states.top10.all %>% 
+  filter(death >= 10) %>%
+  select(-since10) %>% 
+  group_by(state) %>% 
+  mutate(since10 = rank(date))
+
+#state new cases
+states.newcases <- states.pos %>% 
+  group_by(state) %>% 
+  arrange(state, date) %>% 
+  mutate(new.cases = ifelse(is.na(lag(positive)), -1, positive - lag(positive)),
+         new.deaths = ifelse(is.na(lag(death)), -1, death - lag(death))) 
+
+states.new.top10 <- states.newcases %>% 
+  filter(state %in% states.top10$state)
+
+states.new.top20 <- states.newcases %>% 
+  filter(state %in% states.top20$state)
+
+
+```
+           
+---             
+            
+# **Introduction** 
+This website is intended as a reference to track US regional trends in COVID-19 cases and deaths.  
+Last update: **`r format(Sys.time(), "%H:%M %m-%d-%Y")`**  
+Before looking at the graphs below, please read this one HUGE caution:
+
+##### **THESE DATA ARE WRONG**  
+By that, I mean that the data are not **reality** in the sense that most people want. They **do not** tell us the **actual** number of cases and deaths per day due to COVID-19. **They are a super-dirty, extremely-noisy, very-wrong best attempts at measuring cases.** They are most certainly underestimates of the true case load.  
+
+The graphs are best interpreted looking at the direction of the states' long term trends and not as reliable reports of what is going on right now at this very moment. That being said, it is also amazing we have this caliber of data at all, even if there is inevitable noise. The people aggregating these numbers doing an incredible job and have played an important role in managing the crisis! 
+
+**[If this is your first time here, please read the longer warning about interpreting these data.](http://www.uscovidtrends.com/about.html)**    
+    
+With that, I wish you happy and cautious data gazing!  
+**Mark Zobeck MD, MPH**  
+
+---
+    
+
+# **States** 
+A refresher about `log` scales: On the `y-axis` you will sometimes see it in `log10` scale. This makes it so that the space between 0-10, 10-100, 100-1000, and so forth are the same distance. This helps to visualize trends of things that happen explosively, like the exponential growth of a virus. I provide both an untransformed and `log10` transformed scale below.
+
+## **The Top 10**
+Here are reports for the top 10 states by reported number of cases. These are the states where COVID-19 seems to be most active. I advise that you pay attention to New York because of its current severity (what the rest of the United States could become?), and Washington and California because they had an early high case load and took earlier measures such as "social distancing" and cancelling larger gatherings, and Luisiana, which seems to have a high reported case load for its size. 
+
+The `x-axis` below should be interpreted as "days since the state reported its 10th case". This helps to show where each state is from a standard reference point in time and facilitates better comparisons of trends. 
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r states top 10, fig.height= 7, fig.width = 10}
+states.top10.all %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State")+
+  ggtitle("Cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+#### Log(Prevalence)
+```{r , fig.height = 7, fig.width = 10}
+states.top10.all %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic Reported Cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic cumulative reported cases by days\nsince the 10th reported case.") 
+```
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+states.top10.death %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  stat_function(fun = function(x) 10*2^((x)/2), color= "grey", alpha = 0.5, linetype = "dashed",
+                arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches")))+
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "Reported Deaths", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Number of cumulative reported deaths by days\nsince the 10th reported case.") +
+  geom_label_repel(data = states.top10.death %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(death)) %>% 
+                     head(5),
+                   aes(label = state), show.legend = FALSE,
+                   alpha = 0.9, nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35) +
+  coord_cartesian(ylim=c(0,max(states.top10.death$death, na.rm = TRUE))) +
+  annotate("text", x =  10, y = 400, angle = 80, color = "grey",
+           label = "Double every 2 days.", size = 3.5)
+```
+
+
+#### Log(Deaths)
+```{r}
+states.top10.all %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+   stat_function(fun = function(x) log10(10*2^((x-10)/2)), color = "grey", alpha = 0.5, linetype = "dashed",
+                arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches")))+
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10() + 
+  labs(y= "Logarithmic Positive Reported Cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic number of cumulative reported deaths\nby days since the 10th reported case.")
+
+
+states.top10.all %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  stat_function(fun = function(x) log10(10*2^((x-10)/2)), color = "grey", alpha = 0.5, linetype = "dashed",
+                arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches")))+
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic Reported Cases", x = "Days since reporting 10th case", color = "State",
+       caption = "\nDashed grey line shows the path of a state if cases double every 2 days.") +
+  ggtitle("Logarithmic cumulative reported cases by days\nsince the 10th reported case.") +
+  geom_label_repel(data = states.top10.all %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(positive)) %>% 
+                     head(5),
+                   aes(label = state), show.legend = FALSE,
+                   alpha = 0.9, nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35) + 
+      annotate("text", x =  22, y = 15000, angle = 33, color = "grey",
+           label = "Double every 2 days.")
+```
+
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.  
+
+#### Prevalence 
+```{r}
+states.top10.all %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Cumulative reported cases per 100,000 people by days\nsince the 10th reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+states.top10.all %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10()+
+  labs(y= "Logarithmic reported Cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic cumulative reported cases\nper 100,000 people by days since the 10th reported case.")
+```
+
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+states.top10.all %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "Reported Deaths per 100,000 people", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Number of cumulative reported deaths per 100,000 people\nby days since the 10th reported case.")
+```
+
+
+#### Log(Deaths)
+```{r}
+states.top10.all %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10() +
+  labs(y= "Reported deaths per 100,000 people", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic number of cumulative reported deaths\nper 100,000 people by days since the 10th reported case.")
+
+```
+
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+states.new.top10 %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "New reported cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Number of reported new cases\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Cases)
+```{r}
+states.new.top10 %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic daily reported cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic number of daily reported new cases\nby days since the 10th reported case.")
+```
+
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+states.new.top10 %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "New reported deaths", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic number of reported new deaths\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Deaths)
+```{r}
+states.new.top10 %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic new reported deaths", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic number of reported new deaths\nby days since the 10th reported case.")
+```
+
+
+## **California**  
+
+```{r }
+the.state <- "CA"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+```
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_label_repel(data = states.top10.all %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases by days\nsince the 10th reported case.") 
+```
+
+#### Log(Prevalence)
+```{r}
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_label_repel(data = states.top10.all %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(positive)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence with the top 6 labeled.") +
+  ggtitle("Logarithmic cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_label_repel(data = states.top10.death %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths by days\nsince the 10th reported case.")
+
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_label_repel(data = states.top10.all %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths\nby days since the 10th reported case.")
+```
+
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.  
+
+#### Prevalence 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_label_repel(data = states.top10.all %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()  +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases per 100,000 people by days\nsince the 10th reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_label_repel(data = states.top10.all %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic cumulative reported cases\nper 100,000 people by days since the 10th reported case.")
+```
+
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_label_repel(data = states.top10.all %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths per\n100,000 people by days since the 10th reported case.")
+```
+
+
+#### Log(Deaths)
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_label_repel(data = states.top10.all %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10()+
+  labs(y= "Reported deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths per 100,000 people\nby days since the 10th reported case.")
+
+```
+
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches")))+ geom_label_repel(data = states.new.top20 %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "New reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new cases\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Cases)
+```{r}
+
+
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + geom_label_repel(data = states.new.top20 %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  theme_minimal_hgrid() +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  scale_color_calc() +
+  scale_y_log10()+
+  labs(y= "Logarithmic new reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of daily reported new cases\nby days since the 10th reported case.")
+```
+
+
+### New Deaths by Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + geom_label_repel(data = states.new.top20 %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "New reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new deaths\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Deaths)
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_label_repel(data = states.new.top20 %>%
+                     filter(date == max(date)) %>% 
+                     arrange(desc(since10)) %>% 
+                     filter(state != the.state) %>% 
+                     head(6),
+                   aes(label = state), show.legend = FALSE,
+                   nudge_x = 0.25, nudge_y = 0.25, 
+                   point.padding = 0.2, box.padding = 0.35, color = "grey") +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic new reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of reported new deaths\nby days since the 10th reported case.")
+```
+
+## **Florida**  
+
+```{r }
+the.state <- "FL"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+```
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+#### Log(Prevalence)
+```{r}
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths by days\nsince the 10th reported case.")
+
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths\nby days since the 10th reported case.")
+```
+
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.  
+
+#### Prevalence 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()  +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases per 100,000 people by days\nsince the 10th reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic cumulative reported cases\nper 100,000 people by days since the 10th reported case.")
+```
+
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths per\n100,000 people by days since the 10th reported case.")
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10()+
+  labs(y= "Reported deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths per 100,000 people\nby days since the 10th reported case.")
+
+```
+
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "New reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new cases\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Cases)
+```{r}
+
+
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  theme_minimal_hgrid() +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  scale_color_calc() +
+  scale_y_log10()+
+  labs(y= "Logarithmic new reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of daily reported new cases\nby days since the 10th reported case.")
+```
+
+
+### New Deaths by Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "New reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new deaths\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Deaths)
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic new reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of reported new deaths\nby days since the 10th reported case.")
+```
+
+## **Louisiana**  
+
+```{r }
+the.state <- "LA"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+```
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+#### Log(Prevalence)
+```{r}
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths by days\nsince the 10th reported case.")
+
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths\nby days since the 10th reported case.")
+```
+
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.  
+
+#### Prevalence 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()  +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases per 100,000 people by days\nsince the 10th reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic cumulative reported cases\nper 100,000 people by days since the 10th reported case.")
+```
+
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths per\n100,000 people by days since the 10th reported case.")
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10()+
+  labs(y= "Reported deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths per 100,000 people\nby days since the 10th reported case.")
+
+```
+
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "New reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new cases\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Cases)
+```{r}
+
+
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  theme_minimal_hgrid() +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  scale_color_calc() +
+  scale_y_log10()+
+  labs(y= "Logarithmic new reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of daily reported new cases\nby days since the 10th reported case.")
+```
+
+
+### New Deaths by Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "New reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new deaths\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Deaths)
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic new reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of reported new deaths\nby days since the 10th reported case.")
+```
+
+## **New York**  
+
+```{r }
+the.state <- "NY"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+```
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+#### Log(Prevalence)
+```{r}
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths by days\nsince the 10th reported case.")
+
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths\nby days since the 10th reported case.")
+```
+
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.  
+
+#### Prevalence 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()  +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases per 100,000 people by days\nsince the 10th reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic cumulative reported cases\nper 100,000 people by days since the 10th reported case.")
+```
+
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths per\n100,000 people by days since the 10th reported case.")
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10()+
+  labs(y= "Reported deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths per 100,000 people\nby days since the 10th reported case.")
+
+```
+
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "New reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new cases\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Cases)
+```{r}
+
+
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  theme_minimal_hgrid() +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  scale_color_calc() +
+  scale_y_log10()+
+  labs(y= "Logarithmic new reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of daily reported new cases\nby days since the 10th reported case.")
+```
+
+
+### New Deaths by Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "New reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new deaths\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Deaths)
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic new reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of reported new deaths\nby days since the 10th reported case.")
+```
+
+## **Texas**  
+
+```{r }
+the.state <- "TX"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+```
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+#### Log(Prevalence)
+```{r}
+current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, positive), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases by days\nsince the 10th reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths by days\nsince the 10th reported case.")
+
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths\nby days since the 10th reported case.")
+```
+
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+These data are how many cases for every 100,000 people in the state. It helps to compare more populous states from less populous ones.  
+
+#### Prevalence 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()  +
+  labs(y= "Reported Cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Cumulative reported cases per 100,000 people by days\nsince the 10th reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+
+current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, pos100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 10th case", color = "State") +
+  ggtitle("Logarithmic cumulative reported cases\nper 100,000 people by days since the 10th reported case.")
+```
+
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "Reported Deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of cumulative reported deaths per\n100,000 people by days since the 10th reported case.")
+```
+
+
+#### Log(Deaths)
+```{r}
+
+
+current.state %>% 
+  ggplot(aes(since10, death100k, group = state, color = state)) +
+  geom_line(data=states.top20.all, aes(since10, death100k), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) +
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  scale_y_log10()+
+  labs(y= "Reported deaths per 100,000 people", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of cumulative reported deaths per 100,000 people\nby days since the 10th reported case.")
+
+```
+
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc()+ 
+  labs(y= "New reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new cases\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Cases)
+```{r}
+
+
+current.state.new %>% 
+  ggplot(aes(since10, new.cases, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.cases), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  theme_minimal_hgrid() +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  scale_color_calc() +
+  scale_y_log10()+
+  labs(y= "Logarithmic new reported cases", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of daily reported new cases\nby days since the 10th reported case.")
+```
+
+
+### New Deaths by Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() + 
+  labs(y= "New reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Number of reported new deaths\nby days since the 10th reported case.")
+```
+
+
+#### Log(New Deaths)
+```{r}
+current.state.new %>% 
+  ggplot(aes(since10, new.deaths, group = state, color = state)) +
+  geom_line(data = states.new.top20, aes(since10, new.deaths), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  scale_y_log10() +
+  labs(y= "Logarithmic new reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
+  ggtitle("Logarithmic number of reported new deaths\nby days since the 10th reported case.")
+```
+
+
+
+# **Counties**  
+*Important Note*: On 3-22-20 and 3-25-20, the data sources for how the county level data were reported changed. Please be cautious in interpreting the recent trends as they may look steeper due to differences in data reporting.   
+
+Note: that instead of days since 10th case, the `x-axis` is now days since reported 1st case.   
+
+## **Texas Top 10**    
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r}
+txcounty.top10.all %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau()+ 
+  labs(y= "Reported cases", x = "Days since reporting 1st case", color = "County") +
+  ggtitle("Cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+#### Log(New Cases)
+```{r}
+txcounty.top10.all %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau()+ 
+  scale_y_log10()+
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 1st case", color = "County") +
+  ggtitle("Logarithmic cumulative reported cases\nby days since the 1st reported case.")
+```
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+txcounty.deaths.top10.all %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau()+ 
+  labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County") +
+  ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+#### Log(Deaths)
+```{r}
+txcounty.deaths.top10.all %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau()+ 
+  scale_y_log10()+
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County") +
+  ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+## **Austin Metro**    
+  
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}    
+#### Prevalence 
+```{r}
+metro.area <- austin.metro
+metro.cases <- tx.county.cases %>% 
+  filter(county %in% metro.area) 
+
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+metro.deaths <- tx.county.deaths %>% 
+  filter(county %in% metro.area) 
+
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+## **Dallas-Fort Worth Metro**    
+  
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}    
+#### Prevalence 
+```{r}
+metro.area <- dfw.metro
+metro.cases <- tx.county.cases %>% 
+  filter(county %in% metro.area) 
+
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_stata() +
+  labs(y= "Reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_stata() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+metro.deaths <- tx.county.deaths %>% 
+  filter(county %in% metro.area) 
+
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+## **Houston Metro**    
+  
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}    
+#### Prevalence 
+```{r}
+metro.area <- houston.metro
+metro.cases <- tx.county.cases %>% 
+  filter(county %in% metro.area) 
+
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+metro.deaths <- tx.county.deaths %>% 
+  filter(county %in% metro.area) 
+
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+## **San Antonio Metro**    
+  
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}    
+#### Prevalence 
+```{r}
+metro.area <- san.antonio.metro
+metro.cases <- tx.county.cases %>% 
+  filter(county %in% metro.area) 
+
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+metro.deaths <- tx.county.deaths %>% 
+  filter(county %in% metro.area) 
+
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+## **Waco Metro**    
+  
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}    
+#### Prevalence 
+```{r}
+metro.area <- waco.metro
+metro.cases <- tx.county.cases %>% 
+  filter(county %in% metro.area) 
+
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+metro.deaths <- tx.county.deaths %>% 
+  filter(county %in% metro.area) 
+
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+## **El Paso**  
+Because this city is awesome.    
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}    
+#### Prevalence 
+```{r}
+metro.area <- "El Paso"
+metro.cases <- tx.county.cases %>% 
+  filter(county %in% metro.area) 
+
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+metro.deaths <- tx.county.deaths %>% 
+  filter(county %in% metro.area) 
+
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+## **Lubbock**  
+Birthplace of Buddy Holly and home to an incredible windmill museum.
+  
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}    
+#### Prevalence 
+```{r}
+metro.area <- "Lubbock"
+metro.cases <- tx.county.cases %>% 
+  filter(county %in% metro.area) 
+
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+#### Log(Prevalence)
+```{r}
+metro.cases %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported cases", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported cases\nby days since the 1st reported case.")
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+metro.deaths <- tx.county.deaths %>% 
+  filter(county %in% metro.area) 
+
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
+```
+
+#### Log(Prevalence)
+```{r}
+metro.deaths %>% 
+  ggplot(aes(since1, value, group = county, color = county)) +
+  geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
+  geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_tableau() +
+  scale_y_log10() + 
+  labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
+  ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
+```

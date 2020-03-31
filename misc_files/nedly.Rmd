@@ -1,0 +1,150 @@
+---
+title: "US COVID-19 Trends"
+author: "By Mark Zobeck, MD, MPH"
+output:
+  html_document:
+    df_print: paged
+    toc: TRUE
+    toc_float:
+      collapsed: TRUE
+      smooth_scroll: TRUE
+    toc_depth: 3
+    fig_width: 10
+    fig_height: 7
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = F)
+knitr::opts_chunk$set(warning = F)
+knitr::opts_chunk$set(echo=FALSE) 
+ 
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(data.table)
+library(lubridate)
+library(naniar)
+library(knitr)
+library(kableExtra)
+library(ggdag)
+library(randomForest)
+library(brms)
+library(bayesplot)
+library(cowplot)
+library(skimr)
+library(ggthemes)
+library(httr)
+library(rjson)
+library(jsonlite)
+library(RCurl)
+library(ggrepel)
+```
+
+```{r, include=FALSE}
+source("initializer.R")
+source("state_functions.R")
+```
+
+# South 
+
+```{r}
+view(state.abrv %>% filter(region == "s"))
+```
+
+
+## **California**  
+
+```{r }
+the.state <- "CA"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev100(current.state)
+```
+
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Prevalence 
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Prevalence)
+```{r}
+state.lprev100(current.state)
+```
+
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+
+### New Deaths by Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+

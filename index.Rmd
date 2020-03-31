@@ -9,6 +9,8 @@ output:
       collapsed: TRUE
       smooth_scroll: TRUE
     toc_depth: 3
+    fig_width: 10
+    fig_height: 7
 
 ---
 
