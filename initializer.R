@@ -19,6 +19,7 @@ if(as.numeric(format(Sys.time(), "%H")) < 18) {
   yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) 
 }
 
+target.states <- read_csv("target_states.csv")
 
 counties.pop <- read_csv("initial_files/counties_pop_fromscrape-200325.csv") %>% 
   select(-lat, -long)
@@ -63,116 +64,8 @@ if (!(yesterday %in% states.counties.hist.pull$date)) {
 states.counties <- states.counties.hist %>% 
   filter(!is.na(state)) %>% 
   group_by(date, state, county, type) %>% 
-  filter(value == max(value)) #I'm going to assume double entries are errors not additive
-
-
-# TX county data
-tx.county <- states.counties %>% 
-  filter(state == "TX" ) %>% 
-  filter(!is.na(county))
-
-#tx county cases first
-tx.county.cases <- tx.county %>% 
-  filter(type == "cases") %>% 
-  filter(value > 0) %>% 
-  group_by(county) %>% 
-  mutate(since1 = rank(date))
-
-txcounty.top10 <- tx.county.cases %>% 
-  filter(date == yesterday ) %>% 
-  arrange(desc(value)) %>% 
-  head(10)
-
-txcounty.top10.all <- tx.county.cases %>% 
-  filter(county %in% txcounty.top10$county)
-
-
-#tx county cases deaths
-
-d1.index <- tx.county.cases %>% 
-  select(county, date, since1)
-
-tx.county.deaths <- tx.county %>% 
-  filter(type == "deaths") %>% 
-  left_join(d1.index)
-
-txcounty.deaths.top10.all <- tx.county.deaths %>% 
-  filter(county %in% txcounty.top10$county)
-
-# houston data 
-houston.metro <- c("Harris", "Fort Bend", "Montgomery", "Galveston", "Brazoria", "Liberty", "Chambers", "Waller")  
-
-dfw.metro <- c("Collin", 
-               "Dallas", 
-               "Denton",
-               "Ellis",
-               "Hunt", 
-               "Kaufman", 
-               "Rockwall", 
-               "Hood", 
-               "Johnson", 
-               "Parker", 
-               "Somervell", 
-               "Tarrant", 
-               "Wise") 
-
-austin.metro <- c("Bastrop", "Caldwell", "Hays", "Travis","Williamson")
-san.antonio.metro <- c("Atascosa",
-                       "Bandera",
-                       "Bexar",
-                       "Comal",
-                       "Guadalupe",
-                       "Kendall",
-                       "Medina",
-                       "Wilson")
-
-waco.metro <-c("McLennan", "Falls")
-
-houston.metro.cases <- tx.county.cases %>% 
-  filter(county %in% houston.metro) 
-
-dfw.metro.cases <- tx.county.cases %>% 
-  filter(county %in% dfw.metro)
-
-austin.cases <- tx.county.cases %>% 
-  filter(county %in% austin.metro)
-
-sa.cases <- tx.county.cases %>% 
-  filter(county %in% san.antonio.metro)
-
-waco.cases <- tx.county.cases %>% 
-  filter(county %in% waco.metro)
-
-lbk.cases <- tx.county.cases %>% 
-  filter(county == "Lubbock")
-
-ep.cases <- tx.county.cases %>% 
-  filter(county == "El Paso")
-
-
-#Deaths 
-houston.metro.deaths<- tx.county.deaths %>% 
-  filter(county %in% houston.metro) 
-
-dfw.metro.deaths <- tx.county.deaths %>% 
-  filter(county %in% dfw.metro)
-
-austin.deaths <- tx.county.deaths %>% 
-  filter(county %in% austin.metro)
-
-sa.deaths <- tx.county.deaths %>% 
-  filter(county %in% san.antonio.metro)
-
-waco.deaths <- tx.county.deaths %>% 
-  filter(county %in% waco.metro)
-
-lbk.deaths <- tx.county.deaths %>% 
-  filter(county == "Lubbock")
-
-ep.deaths <- tx.county.deaths %>% 
-  filter(county == "El Paso")
-
-
+  filter(value == max(value)) %>%  #I'm going to assume double entries are errors not additive
+  filter(state %in% target.states$state_code)
 
 
 

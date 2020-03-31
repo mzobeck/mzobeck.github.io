@@ -1,0 +1,2177 @@
+---
+title: "US COVID-19 Trends"
+author: "By Mark Zobeck, MD, MPH"
+output:
+  html_document:
+    df_print: paged
+    toc: TRUE
+    toc_float:
+      collapsed: TRUE
+      smooth_scroll: TRUE
+    toc_depth: 3
+    fig_width: 10
+    fig_height: 7
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = F)
+knitr::opts_chunk$set(warning = F)
+knitr::opts_chunk$set(echo=FALSE) 
+ 
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(data.table)
+library(lubridate)
+library(naniar)
+library(knitr)
+library(kableExtra)
+library(ggdag)
+library(randomForest)
+library(brms)
+library(bayesplot)
+library(cowplot)
+library(skimr)
+library(ggthemes)
+library(httr)
+library(rjson)
+library(jsonlite)
+library(RCurl)
+library(ggrepel)
+```
+
+```{r, include=FALSE}
+target.states <- read_csv("initial_files/state_regions.csv") %>% 
+  filter(region == "South")
+
+fwrite(target.states, "target_states.csv")
+```
+
+```{r, include = FALSE}
+source("initializer.R")
+source("state_functions.R")
+```
+
+# **The South**
+
+--- 
+
+## **The Top 10**  
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+top.prev(states.top10.all)
+```
+
+#### Log(Prevalence)
+```{r}
+top.lprev(states.top10.all)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+top.death(states.top10d.all)
+```
+
+
+#### Log(Deaths)
+```{r}
+top.ldeath(states.top10d.all)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+top.prev100(states.top10.all)
+```
+
+
+#### Log(Cases)
+```{r}
+top.lprev100(states.top10.all)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+top.deaths100(states.top10d.all)
+```
+
+
+#### Log(Deaths)
+```{r}
+top.ldeaths100(states.top10d.all)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+top.casenew(states.new.top10)
+```
+
+
+#### Log(New Cases)
+```{r}
+top.lcasenew(states.new.top10)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+top.deathnew(states.newdeaths.top10)
+```
+
+
+#### Log(New Deaths)
+```{r}
+top.ldeathnew(states.newdeaths.top10)
+```
+
+### {.toc-ignore} 
+
+---
+
+## **Alabama**  
+
+[Return to top](#header)
+```{r }
+the.state <- "AL"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+---
+
+## **Arkansas**  
+
+[Return to top](#header)
+```{r }
+the.state <- "AR"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+---
+
+## **Delaware**  
+
+[Return to top](#header)
+```{r }
+the.state <- "DE"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Washington D.C.**  
+
+[Return to top](#header)
+```{r }
+the.state <- "DC"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Florida**  
+
+[Return to top](#header)
+```{r }
+the.state <- "FL"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Georgia**  
+
+[Return to top](#header)
+```{r }
+the.state <- "GA"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Kentucky**  
+
+[Return to top](#header)
+```{r }
+the.state <- "KY"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Louisiana**  
+
+[Return to top](#header)
+```{r }
+the.state <- "LA"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Maryland**  
+
+[Return to top](#header)
+```{r }
+the.state <- "MD"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Mississippi**  
+
+[Return to top](#header)
+```{r }
+the.state <- "MS"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **North Carolina**  
+
+[Return to top](#header)
+```{r }
+the.state <- "NC"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Oklahoma**  
+
+[Return to top](#header)
+```{r }
+the.state <- "OK"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **South Carolina**  
+
+[Return to top](#header)
+```{r }
+the.state <- "SC"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Tennessee**  
+
+[Return to top](#header)
+```{r }
+the.state <- "TN"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Texas**  
+
+[Return to top](#header)
+```{r }
+the.state <- "TX"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **Virginia**  
+
+[Return to top](#header)
+```{r }
+the.state <- "VA"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+---
+
+## **West Virginia**  
+
+[Return to top](#header)
+```{r }
+the.state <- "WV"
+
+current.state <- states.pos %>% 
+  filter(state == the.state)
+
+current.state.death <- states.deaths %>% 
+    filter(state == the.state)
+
+current.state.new <- states.newcases %>% 
+  filter(state == the.state)
+
+current.state.newdeath <- states.newdeaths %>% 
+    filter(state == the.state)
+
+```
+
+
+### Cumulative Cases {.tabset .tabset-fade .tabset-pills}  
+#### Prevalence 
+```{r }
+state.prev(current.state)
+```
+
+#### Log(Prevalence)
+```{r}
+state.lprev(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### Cumulative Deaths {.tabset .tabset-fade .tabset-pills}  
+#### Deaths
+```{r}
+state.death(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+  
+### Cumulative Cases per 100,000 People {.tabset .tabset-fade .tabset-pills} 
+#### Cases
+```{r}
+state.prev100(current.state)
+```
+
+
+#### Log(Cases)
+```{r}
+state.lprev100(current.state)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+  
+### Cumulative Deaths per 100,000 People {.tabset .tabset-fade .tabset-pills}  
+#### Deaths 
+```{r}
+state.death100(current.state.death)
+```
+
+
+#### Log(Deaths)
+```{r}
+state.ldeath100(current.state.death)
+```
+
+###  {.toc-ignore}
+
+[Return to top](#header)
+
+### New Cases per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Cases 
+```{r}
+state.casenew(current.state.new)
+```
+
+
+#### Log(New Cases)
+```{r}
+state.lcasenew(current.state.new)
+```
+
+### {.toc-ignore}
+
+[Return to top](#header)
+  
+
+### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
+#### New Deaths 
+```{r}
+state.deathnew(current.state.newdeath)
+```
+
+
+#### Log(New Deaths)
+```{r}
+state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+
+

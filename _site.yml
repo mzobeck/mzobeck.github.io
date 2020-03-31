@@ -4,6 +4,8 @@ navbar:
   left:
     - text: "About"
       href: about.html
+    - text: "South"
+      href: south.html
     - text: "Github"
       href: https://github.com/mzobeck/covid_trends
     - text: "Twitter"
