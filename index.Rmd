@@ -46,7 +46,21 @@ library(ggrepel)
 source("index_initialize-esri.R")
 source("state_functions.R")
 ```
-           
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-78251343-4"></script>
+
+<script>
+
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag(){dataLayer.push(arguments);}
+
+  gtag('js', new Date());
+
+
+
+  gtag('config', 'UA-78251343-4');
+
+</script>          
 ---             
             
 # **Introduction** 
@@ -57,7 +71,7 @@ Before looking at the graphs below, please read this one HUGE caution:
 ##### **THESE DATA ARE WRONG**  
 By that, I mean that the data are not **reality** in the sense that most people want. They **do not** tell us the **actual** number of cases and deaths per day due to COVID-19. **They are a super-dirty, extremely-noisy, very-wrong best attempts at measuring cases.** They are most certainly underestimates of the true case load.  
 
-The graphs are best interpreted looking at the direction of the states' long term trends and not as reliable reports of what is going on right now at this very moment. That being said, it is also amazing we have this caliber of data at all, even if there is inevitable noise. The people aggregating these numbers doing an incredible job and have played an important role in managing the crisis! 
+The graphs are best interpreted looking at the direction of the states' long term trends and not as reliable reports of what is going on right now at this very moment. That being said, it is also amazing we have this caliber of data at all, even if there is inevitable noise. The people aggregating these numbers are doing an incredible job and have played an important role in managing the crisis! 
 
 **[If this is your first time here, please read the longer warning about interpreting these data.](http://www.uscovidtrends.com/about.html)**    
     

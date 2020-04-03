@@ -14,6 +14,21 @@ output:
 
 ---
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-78251343-4"></script>
+
+<script>
+
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag(){dataLayer.push(arguments);}
+
+  gtag('js', new Date());
+
+
+
+  gtag('config', 'UA-78251343-4');
+
+</script>
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message = F)
 knitr::opts_chunk$set(warning = F)
