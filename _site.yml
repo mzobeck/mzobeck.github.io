@@ -12,6 +12,8 @@ navbar:
       href: south.html
     - text: "West"
       href: west.html
+    - text: "Metro Areas"
+      href: counties.html
     - text: "Github"
       href: https://github.com/mzobeck/covid_trends
     - text: "Twitter"

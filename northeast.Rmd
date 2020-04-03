@@ -188,6 +188,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -282,6 +289,23 @@ state.deathnew(current.state.newdeath)
 #### Log(New Deaths)
 ```{r}
 state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
 ```
 
 ### {.toc-ignore} 
@@ -306,6 +330,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -404,6 +435,23 @@ state.ldeathnew(current.state.newdeath)
 
 ### {.toc-ignore} 
 
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
+```
+
+### {.toc-ignore} 
+
 ---
 
 ## **Maine**  
@@ -424,6 +472,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -518,6 +573,23 @@ state.deathnew(current.state.newdeath)
 #### Log(New Deaths)
 ```{r}
 state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
 ```
 
 ### {.toc-ignore} 
@@ -543,6 +615,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -637,6 +716,23 @@ state.deathnew(current.state.newdeath)
 #### Log(New Deaths)
 ```{r}
 state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
 ```
 
 ### {.toc-ignore} 
@@ -662,6 +758,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -756,6 +859,23 @@ state.deathnew(current.state.newdeath)
 #### Log(New Deaths)
 ```{r}
 state.ldeathnew(current.state.newdeath)
+```
+
+### {.toc-ignore} 
+
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
 ```
 
 ### {.toc-ignore} 
@@ -781,6 +901,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -879,6 +1006,23 @@ state.ldeathnew(current.state.newdeath)
 
 ### {.toc-ignore} 
 
+
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
+```
+
+### {.toc-ignore} 
 
 ---
 
@@ -900,6 +1044,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -998,6 +1149,23 @@ state.ldeathnew(current.state.newdeath)
 
 ### {.toc-ignore} 
 
+
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
+```
+
+### {.toc-ignore} 
 
 ---
 
@@ -1019,6 +1187,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -1117,6 +1292,23 @@ state.ldeathnew(current.state.newdeath)
 
 ### {.toc-ignore} 
 
+
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
+```
+
+### {.toc-ignore} 
 
 ---
 
@@ -1138,6 +1330,13 @@ current.state.new <- states.newcases %>%
 current.state.newdeath <- states.newdeaths %>% 
     filter(state == the.state)
 
+state.testing <- states.pos %>% 
+  filter(state == the.state) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
+  select(date, state, population, since10, negative_increase, positive_increase) %>% 
+  group_by(date, state, since10, population) %>% 
+  pivot_longer(negative_increase:positive_increase) %>% 
+  mutate(val100k = (value/population)*100000)
 ```
 
 
@@ -1236,5 +1435,22 @@ state.ldeathnew(current.state.newdeath)
 
 ### {.toc-ignore} 
 
+
+[Return to top](#header)
+  
+
+###  New Tests per Day  {.tabset .tabset-fade .tabset-pills}  
+#### New Tests per Day
+```{r}
+state.testcase(state.testing)
+```
+
+
+#### New Test per Day per 100,000 People 
+```{r}
+state.testcase100(state.testing)
+```
+
+### {.toc-ignore} 
 
 

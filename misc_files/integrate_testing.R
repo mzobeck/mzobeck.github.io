@@ -20,22 +20,24 @@ tracking <- read_csv("http://covidtracking.com/api/states/daily.csv") %>%
   rename(positive.tests = positive, negative.test = negative) %>% 
   rename(death.track = death)
   
+tracking %>%  filter(state == "TX") %>% view
 
 #this goes in the state_functions
 the.state <- "TX"
   
 state.testing <- states.pos %>% 
   filter(state == the.state) %>% 
-  left_join(tracking) %>% 
+  left_join(tracking, by = c("date", "state")) %>% 
   select(date, state, population, since10, negative_increase, positive_increase) %>% 
   group_by(date, state, since10, population) %>% 
   pivot_longer(negative_increase:positive_increase) %>% 
   mutate(val100k = (value/population)*100000)
 
 #inster these two graphs into the state_functions script
-the.state.delux %>% 
+states.pos %>% 
+  filter(state == the.state) %>% 
   ggplot(aes(since10, positive, group = state, color = state)) +
-  geom_col(data = long.state, aes(x = since10, value, fill = name),
+  geom_col(data = state.testing, aes(x = since10, value, fill = name),
            position="stack", alpha = 0.4, color = "white") +
   scale_fill_manual(values = c("deepskyblue", "red"),
                     labels = c("Negative", "Positive"))+
@@ -47,9 +49,10 @@ the.state.delux %>%
   ggtitle("Cumulative reported cases and tests per day\n by days since the 10th reported case.") 
 
 
-the.state.delux %>% 
+states.pos %>% 
+  filter(state == the.state) %>% 
   ggplot(aes(since10, pos100k, group = state, color = state)) +
-  geom_col(data = long.state, aes(x = since10, val100k, fill = name),
+  geom_col(data = state.testing, aes(x = since10, val100k, fill = name),
            position="stack", alpha = 0.4, color = "white") +
   scale_fill_manual(values = c("deepskyblue", "red"),
                     labels = c("Negative", "Positive"))+
@@ -58,5 +61,5 @@ the.state.delux %>%
   scale_color_calc() +
   labs(y= "Reported Cases or Tests per 100,000 People ", x = "Days since reporting 10th case", 
        color = "State", fill = "Tests Per Day") +
-  ggtitle("Cumulative reported cases and tests per day\nper 100,000 people by days since the 10th reported case.") 
+  ggtitle("Cumulative reported cases and tests per day per\n100,000 people by days since the 10th reported case.") 
 

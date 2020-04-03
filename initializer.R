@@ -33,6 +33,13 @@ state.abrv <- read_xlsx("initial_files/state_pop.xlsx") %>%
 state.pop <- read_xlsx("initial_files/state_pop.xlsx") %>%  
   select(state = abrv, population, region)
 
+#testing numbers
+tracking <- read_csv("http://covidtracking.com/api/states/daily.csv") %>% 
+  clean_names() %>% 
+  mutate(date = ymd(date)) %>% 
+  rename(positive.tests = positive, negative.test = negative) %>% 
+  rename(death.track = death)
+
 csse_csvs <- tibble(dates = list.files("csse_files")) %>% 
   mutate(dates = ymd(str_extract(dates, "[:digit:]+-[:digit:]+-[:digit:]+")))
 

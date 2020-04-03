@@ -400,10 +400,6 @@ state.deathnew <- function(x) {
     ggtitle("Number of reported new deaths\nby days since the 10th reported death.")
 }
 
-
-
-
-
 state.ldeathnew <- function(x) {
   x %>% 
     ggplot(aes(since10, new.deaths, group = state, color = state)) +
@@ -422,5 +418,38 @@ state.ldeathnew <- function(x) {
     scale_y_log10() +
     labs(y= "Logarithmic new reported deaths", x = "Days since reporting 10th case", color = "State", caption = "\nGrey arrows represent the top 20 states by reported prevalence.") +
     ggtitle("Logarithmic number of reported new deaths\nby days since the 10th reported death.")
+}
+
+
+state.testcase <- function(x) {
+  current.state %>% 
+  ggplot(aes(since10, positive, group = state, color = state)) +
+  geom_col(data = x, aes(x = since10, value, fill = name),
+           position="stack", alpha = 0.4, color = "white") +
+  scale_fill_manual(values = c("deepskyblue", "red"),
+                    labels = c("Negative", "Positive"))+
+  geom_line(size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases or Tests", x = "Days since reporting 10th case", 
+       color = "State", fill = "Tests Per Day",
+       caption = "\nBlue arrow represent the total cumulative cases in the state.") +
+  ggtitle("Tests per day by days since the 10th reported case.") 
+}
+
+state.testcase100 <- function(x) {
+  current.state %>% 
+  ggplot(aes(since10, pos100k, group = state, color = state)) +
+  geom_col(data = x, aes(x = since10, val100k, fill = name),
+           position="stack", alpha = 0.4, color = "white") +
+  scale_fill_manual(values = c("deepskyblue", "red"),
+                    labels = c("Negative", "Positive"))+
+  geom_line(size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
+  theme_minimal_hgrid() +
+  scale_color_calc() +
+  labs(y= "Reported Cases or Tests per 100,000 People ", x = "Days since reporting 10th case", 
+       color = "State", fill = "Tests Per Day",
+       caption = "\nBlue arrow represent the total cumulative cases per 100,000 people in the state.") +
+  ggtitle("Tests per day per 100,000 people\nby days since the 10th reported case.") 
 }
 

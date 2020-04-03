@@ -28,8 +28,19 @@ state.abrv <- read_xlsx("initial_files/state_pop.xlsx") %>%
   clean_names() %>% 
   select(state, abrv, region)
 
+state.names <- state.abrv %>% 
+  rename(state_long = state, state = abrv)
+
+
 state.pop <- read_xlsx("initial_files/state_pop.xlsx") %>%  
   select(state = abrv, population, region)
+
+#testing numbers 
+tracking <- read_csv("http://covidtracking.com/api/states/daily.csv") %>% 
+  clean_names() %>% 
+  mutate(date = ymd(date)) %>% 
+  rename(positive.tests = positive, negative.test = negative) %>% 
+  rename(death.track = death)
 
 csse_csvs <- tibble(dates = list.files("csse_files")) %>% 
   mutate(dates = ymd(str_extract(dates, "[:digit:]+-[:digit:]+-[:digit:]+")))
@@ -110,9 +121,13 @@ states.top10.yesterday <- states.pos %>%
   head(10)
 
 if (nrow(states.top10.today) > 0) {
-  states.top10 <- states.top10.today
+  states.top10 <- states.top10.today %>% 
+    arrange(desc(positive)) %>% 
+    left_join(state.names)
 } else {
-  states.top10 <- states.top10.yesterday
+  states.top10 <- states.top10.yesterday %>% 
+    arrange(desc(positive)) %>% 
+    left_join(state.names)
 }
 
 states.top10.all <- states.pos %>% 
