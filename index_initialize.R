@@ -46,11 +46,11 @@ csse_csvs <- tibble(dates = list.files("csse_files")) %>%
   mutate(dates = ymd(str_extract(dates, "[:digit:]+-[:digit:]+-[:digit:]+")))
 
 states.counties.hist.pull <- read_csv(paste0("csse_files/states_counties_hist_",max(csse_csvs$dates),".csv")) %>% 
-  filter(!is.na(state)) #there are unassigned states from the past 
+  filter(!is.na(state))    #there are unassigned states from the past 
 
 
 if (!(yesterday %in% states.counties.hist.pull$date)) {
-  url.yest <- "https://opendata.arcgis.com/datasets/628578697fb24d8ea4c32fa0c5ae1843_0.csv"
+  url.yest <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/", format(yesterday, "%m-%d-%Y"),".csv")
   
   csse.yesterday <- read_csv(url.yest) %>% 
     clean_names() %>% 
