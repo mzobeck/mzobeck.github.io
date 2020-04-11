@@ -144,7 +144,7 @@ states.top10d.all %>%
 
 #### Log(Deaths)
 ```{r}
-states.top10.all %>% 
+states.top10d.all %>% 
   ggplot(aes(since10, death, group = state, color = state)) +
   geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
   theme_minimal_hgrid() +
@@ -196,7 +196,7 @@ states.top10.all %>%
 
 #### Log(Deaths)
 ```{r}
-states.top10.all %>% 
+states.top10d.all %>% 
   ggplot(aes(since10, death100k, group = state, color = state)) +
   geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
   theme_minimal_hgrid() +
@@ -237,7 +237,7 @@ states.new.top10 %>%
 ### New Deaths per Day {.tabset .tabset-fade .tabset-pills}  
 #### New Deaths 
 ```{r}
-states.new.top10 %>% 
+states.newdeaths.top10 %>% 
   ggplot(aes(since10, new.deaths, group = state, color = state)) +
   geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
   theme_minimal_hgrid() +
@@ -249,7 +249,7 @@ states.new.top10 %>%
 
 #### Log(New Deaths)
 ```{r}
-states.new.top10 %>% 
+states.newdeaths.top10 %>% 
   ggplot(aes(since10, new.deaths, group = state, color = state)) +
   geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
   theme_minimal_hgrid() +
