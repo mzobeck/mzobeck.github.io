@@ -44,7 +44,7 @@ library(ggrepel)
 ```
 
 ```{r, include = FALSE}
-source("index_initialize.R")
+source("initializer.R")
 source("state_functions.R")
 ```
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-78251343-4"></script>

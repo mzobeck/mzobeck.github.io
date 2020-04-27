@@ -5,21 +5,8 @@ library(janitor)
 library(data.table)
 
 
-#time index for daily updates
-#JHU turns over days at 1800
-
-if(as.numeric(format(Sys.time(), "%H")) < 18) {
-  today <- ymd(format(Sys.time(), "%Y-%m-%d"))
-} else {
-  today <- ymd(format(Sys.time(), "%Y-%m-%d")) + days(1)
-}
-
-
-if(as.numeric(format(Sys.time(), "%H")) < 18) {
-  yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) - days(1)
-} else {
-  yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) 
-}
+today <- ymd(format(Sys.time(), "%Y-%m-%d"))
+yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) - days(1)
 
 counties.pop <- read_csv("initial_files/counties_pop_fromscrape-200325.csv") %>% 
   select(-lat, -long)
@@ -46,11 +33,12 @@ csse_csvs <- tibble(dates = list.files("csse_files")) %>%
   mutate(dates = ymd(str_extract(dates, "[:digit:]+-[:digit:]+-[:digit:]+")))
 
 states.counties.hist.pull <- read_csv(paste0("csse_files/states_counties_hist_",max(csse_csvs$dates),".csv")) %>% 
-  filter(!is.na(state))    #there are unassigned states from the past 
+  filter(!is.na(state)) 
+#there are unassigned states from the past 
 
 
-if (!(yesterday %in% states.counties.hist.pull$date)) {
-  url.yest <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/", format(yesterday, "%m-%d-%Y"),".csv")
+if (!(today%in% states.counties.hist.pull$date)) {
+  url.yest <- "https://opendata.arcgis.com/datasets/628578697fb24d8ea4c32fa0c5ae1843_0.csv"
   
   csse.yesterday <- read_csv(url.yest) %>% 
     clean_names() %>% 
@@ -62,12 +50,13 @@ if (!(yesterday %in% states.counties.hist.pull$date)) {
     left_join(counties.pop) %>% 
     select(state, county, population, date, type, value, lat, long) %>% 
     mutate(type = ifelse(str_detect(type, "confir"), "cases",type),
-           date = date(date))
+           date = date(date)) %>% 
+    mutate(date = if_else(today == date, date, date - days(1)))
   
   states.counties.hist <- states.counties.hist.pull %>% 
     bind_rows(csse.yesterday)
   
-  fwrite(states.counties.hist, paste0("csse_files/states_counties_hist_",yesterday,".csv"))
+  fwrite(states.counties.hist, paste0("csse_files/states_counties_hist_",today,".csv"))
 } else {
   states.counties.hist <- states.counties.hist.pull
 }
@@ -75,7 +64,8 @@ if (!(yesterday %in% states.counties.hist.pull$date)) {
 states.counties <- states.counties.hist %>% 
   filter(!is.na(state)) %>% 
   group_by(date, state, county, type) %>% 
-  filter(value == max(value))  #I'm going to assume double entries are errors not additive
+  filter(value == max(value)) %>% 
+  distinct(date, state, county, type, .keep_all = TRUE) #I'm going to assume double entries are errors not additive
 
 
 
@@ -85,10 +75,12 @@ states.track.hist <- read_csv("initial_files/states_track_hist.csv")
 states.counties.forstates <- states.counties %>% 
   filter(date >= as.Date("2020-03-22")) %>% 
   select(-population, -lat, -long) %>% 
-  pivot_wider(id_cols = c("date", "state", "county"), names_from = "type", values_from = "value") %>% 
+  pivot_wider(id_cols = c("date", "state", "county"), names_from = "type", values_from = "value",) %>% 
   group_by(date, state) %>% 
   summarise(positive = sum(cases),
-            death = sum(deaths))
+            death = sum(deaths)) %>% 
+  mutate(positive = replace(positive, state == "NY" & date == "2020-04-23", 263460),
+         death = replace(death, state == "NY" & date == "2020-04-23", 20973))
 
 states.pos <- states.track.hist %>% 
   bind_rows(states.counties.forstates) %>% 

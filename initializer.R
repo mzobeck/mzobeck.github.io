@@ -5,23 +5,10 @@ library(janitor)
 library(data.table)
 
 
-#time index for daily updates
-#JHU turns over days at 1800
-
-if(as.numeric(format(Sys.time(), "%H")) < 18) {
-  today <- ymd(format(Sys.time(), "%Y-%m-%d"))
-} else {
-  today <- ymd(format(Sys.time(), "%Y-%m-%d")) + days(1)
-}
 
 
-if(as.numeric(format(Sys.time(), "%H")) < 18) {
-  yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) - days(1)
-} else {
-  yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) 
-}
-
-target.states <- read_csv("target_states.csv")
+today <- ymd(format(Sys.time(), "%Y-%m-%d"))
+yesterday <- ymd(format(Sys.time(), "%Y-%m-%d")) - days(1)
 
 counties.pop <- read_csv("initial_files/counties_pop_fromscrape-200325.csv") %>% 
   select(-lat, -long)
@@ -30,66 +17,77 @@ state.abrv <- read_xlsx("initial_files/state_pop.xlsx") %>%
   clean_names() %>% 
   select(state, abrv, region)
 
+state.names <- state.abrv %>% 
+  rename(state_long = state, state = abrv)
+
 state.pop <- read_xlsx("initial_files/state_pop.xlsx") %>%  
   select(state = abrv, population, region)
 
-#testing numbers
+#testing numbers 
 tracking <- read_csv("http://covidtracking.com/api/states/daily.csv") %>% 
   clean_names() %>% 
   mutate(date = ymd(date)) %>% 
   rename(positive.tests = positive, negative.test = negative) %>% 
   rename(death.track = death)
 
-csse_csvs <- tibble(dates = list.files("csse_files")) %>% 
+csse_csvs <- tibble(dates = list.files("states")) %>% 
   mutate(dates = ymd(str_extract(dates, "[:digit:]+-[:digit:]+-[:digit:]+")))
 
-states.counties.hist.pull <- read_csv(paste0("csse_files/states_counties_hist_",max(csse_csvs$dates),".csv")) %>% 
-  filter(!is.na(state)) #there are unassigned states from the past 
+states.comp.pull <- read_csv(paste0("states/states_comp_",max(csse_csvs$dates),".csv")) 
 
 
-if (!(yesterday %in% states.counties.hist.pull$date)) {
-  url.yest <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/", format(yesterday, "%m-%d-%Y"),".csv")  
-  csse.yesterday <- read_csv(url.yest) %>% 
-    clean_names() %>% 
-    rename(state = province_state) %>%
-    filter(country_region == "US") %>% 
-    left_join(state.abrv) %>% 
-    pivot_longer(confirmed:deaths, names_to = "type", values_to = "value") %>% 
-    select(state = abrv, county = admin2, date = last_update, type, value, lat, long) %>% 
-    left_join(counties.pop) %>% 
-    select(state, county, population, date, type, value, lat, long) %>% 
-    mutate(type = ifelse(str_detect(type, "confir"), "cases",type),
-           date = date(date))
+if (!(today %in% states.comp.pull$date)) {
+  url.tod <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/", format(today, "%m-%d-%Y"),".csv")
   
-  states.counties.hist <- states.counties.hist.pull %>% 
-    bind_rows(csse.yesterday)
-  
-  fwrite(states.counties.hist, paste0("csse_files/states_counties_hist_",yesterday,".csv"))
+  if(url.exists(url.tod)) { #check if today's csv is up
+    
+    new.states <- read_csv(url.tod) %>% 
+      clean_names() %>% 
+      select(date = last_update, state = province_state, positive = confirmed, death = deaths) %>% 
+      left_join(state.abrv) %>% 
+      select(date, state = abrv, positive, death) %>% 
+      mutate(date = date(date)) %>% 
+      mutate(date = if_else(today == date, date, date - days(1))) %>% 
+      filter(!is.na(state)) 
+    
+    states.comp <- states.comp.pull %>% 
+      bind_rows(new.states)
+    
+    fwrite(states.comp, paste0("states/states_comp_",today,".csv"))
+  } else { #check if we have yesterday 
+    
+    if (!(yesterday %in% states.comp.pull$date)) {
+      
+      url.yest <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/", format(yesterday, "%m-%d-%Y"),".csv")
+      
+      if(url.exists(url.yest)) {
+        
+        new.states <- read_csv(url.yest) %>% 
+          clean_names() %>% 
+          select(date = last_update, state = province_state, positive = confirmed, death = deaths) %>% 
+          left_join(state.abrv) %>% 
+          select(date, state = abrv, positive, death) %>% 
+          mutate(date = date(date)) %>% 
+          mutate(date = if_else(yesterday == date, date, date - days(1))) %>% 
+          filter(!is.na(state)) 
+        
+        states.comp <- states.comp.pull %>% 
+          bind_rows(new.states)
+        
+        fwrite(states.comp, paste0("states/states_comp_",yesterday,".csv"))
+      } else {
+        states.comp <- states.comp.pull
+    }  
+    } else {
+      states.comp <- states.comp.pull
+    }
+  }
 } else {
-  states.counties.hist <- states.counties.hist.pull
+  states.comp <- states.comp.pull
 }
+  
 
-states.counties <- states.counties.hist %>% 
-  filter(!is.na(state)) %>% 
-  group_by(date, state, county, type) %>% 
-  filter(value == max(value)) %>%  #I'm going to assume double entries are errors not additive
-  filter(state %in% target.states$state_code)
-
-
-
-# state level data --------------------------------------------------------------
-states.track.hist <- read_csv("initial_files/states_track_hist.csv")
-
-states.counties.forstates <- states.counties %>% 
-  filter(date >= as.Date("2020-03-22")) %>% 
-  select(-population, -lat, -long) %>% 
-  pivot_wider(id_cols = c("date", "state", "county"), names_from = "type", values_from = "value") %>% 
-  group_by(date, state) %>% 
-  summarise(positive = sum(cases),
-            death = sum(deaths))
-
-states.pos <- states.track.hist %>% 
-  bind_rows(states.counties.forstates) %>% 
+states.pos <- states.comp %>%  
   filter(positive >= 10) %>% 
   group_by(state) %>% 
   mutate(since10 = rank(date)) %>% 
@@ -97,8 +95,7 @@ states.pos <- states.track.hist %>%
   mutate(pos100k = positive/population * 100000,
          death100k = death/population * 100000)
 
-states.deaths <- states.track.hist %>% 
-  bind_rows(states.counties.forstates) %>% 
+states.deaths <- states.comp %>% 
   filter(death >= 10) %>% 
   group_by(state) %>% 
   mutate(since10 = rank(date)) %>% 
@@ -108,84 +105,39 @@ states.deaths <- states.track.hist %>%
 
 
 #remember this is for all states with > 10 cases only
-states.top10.today <- states.pos %>% 
-  filter(date == today ) %>% 
+states.top10<- states.pos %>% 
+  filter(date == max(states.comp$date)) %>%  
   arrange(desc(positive)) %>% 
-  head(10)
-
-states.top10.yesterday <- states.pos %>% 
-  filter(date == yesterday ) %>% 
-  arrange(desc(positive)) %>% 
-  head(10)
-
-if (nrow(states.top10.today) > 0) {
-  states.top10 <- states.top10.today
-} else {
-  states.top10 <- states.top10.yesterday
-}
+  head(10) %>% 
+  left_join(state.names)
 
 states.top10.all <- states.pos %>% 
   filter(state %in% states.top10$state)
 
 #top 20 for the state comparisons 
-states.top20.today <- states.pos %>% 
-  filter(date == today ) %>% 
+states.top20 <- states.pos %>% 
+  filter(date == max(states.comp$date)) %>% 
   arrange(desc(positive)) %>% 
   head(20)
-
-states.top20.yesterday <- states.pos %>% 
-  filter(date == yesterday ) %>% 
-  arrange(desc(positive)) %>% 
-  head(20)
-
-
-if (nrow(states.top20.today) > 0) {
-  states.top20 <- states.top20.today
-} else {
-  states.top20 <- states.top20.yesterday
-}
 
 states.top20.all <- states.pos %>% 
   filter(state %in% states.top20$state)
 
 #deaths 
 #remember this is for all states with > 10 deaths only
-states.top10d.today <- states.deaths %>% 
-  filter(date == today ) %>% 
+states.top10d <- states.deaths %>% 
+  filter(date == max(states.comp$date) ) %>% 
   arrange(desc(death)) %>% 
   head(10)
-
-states.top10d.yesterday <- states.deaths %>% 
-  filter(date == yesterday ) %>% 
-  arrange(desc(death)) %>% 
-  head(10)
-
-if (nrow(states.top10d.today) > 0) {
-  states.top10d <- states.top10d.today
-} else {
-  states.top10d <- states.top10d.yesterday
-}
 
 states.top10d.all <- states.deaths %>% 
   filter(state %in% states.top10d$state)
 
 #top 20 for the state comparisons 
-states.top20d.today <- states.deaths %>% 
-  filter(date == today ) %>% 
+states.top20d<- states.deaths %>% 
+  filter(date == max(states.comp$date) ) %>% 
   arrange(desc(death)) %>% 
   head(20)
-
-states.top20d.yesterday <- states.pos %>% 
-  filter(date == yesterday ) %>% 
-  arrange(desc(death)) %>% 
-  head(20)
-
-
-if (nrow(states.top20d.today) > 0) {
-  states.top20d <- states.top20d.today
-} else {
-  states.top20d <- states.top20d.yesterday
-}
 
 states.top20d.all <- states.deaths %>% 
   filter(state %in% states.top20d$state)
