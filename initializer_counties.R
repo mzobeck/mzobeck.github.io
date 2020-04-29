@@ -118,7 +118,7 @@ tx.county.cases <- tx.county %>%
   mutate(since1 = rank(date))
 
 txcounty.top10 <- tx.county.cases %>% 
-  filter(date == yesterday ) %>% 
+  filter(date == max(tx.county.cases$date) ) %>% 
   arrange(desc(value)) %>% 
   head(10)
 

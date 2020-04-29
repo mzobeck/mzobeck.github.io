@@ -65,7 +65,7 @@ fwrite(target.states, "target_states.csv")
 ```
 
 ```{r, include = FALSE}
-source("initializer.R")
+source("initializer_region.R")
 source("state_functions.R")
 ```
 

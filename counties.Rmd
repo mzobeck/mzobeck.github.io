@@ -238,7 +238,7 @@ metro.deaths %>%
   geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.8, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
   geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
   theme_minimal_hgrid() +
-  scale_color_tableau() +
+  scale_color_stata()  +
   labs(y= "Reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
   ggtitle("Cumulative reported deaths\nby days since the 1st reported case.")
 ```
@@ -251,7 +251,7 @@ metro.deaths %>%
   geom_line(data = txcounty.deaths.top10.all, aes(since1, value), color = "grey", alpha = 0.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.08, "inches"))) + 
   geom_line(alpha = 0.7, size = 1.5, arrow = arrow(angle = 15, type = "closed", length = unit(0.1, "inches"))) + 
   theme_minimal_hgrid() +
-  scale_color_tableau() +
+  scale_color_stata()  +
   scale_y_log10() + 
   labs(y= "Logarithmic reported deaths", x = "Days since reporting 1st case", color = "County", caption = "\nGrey arrows represent the top 10 Texas counties by reported prevalence.") +
   ggtitle("Logarithmic cumulative reported deaths\nby days since the 1st reported case.")
