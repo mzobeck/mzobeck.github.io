@@ -3,7 +3,7 @@ library(lubridate)
 library(readxl)
 library(janitor)
 library(data.table)
-
+library(RCurl)
 
 
 
@@ -27,11 +27,11 @@ target.states <- read_csv("target_states.csv") %>%
   select(state = state_code)
 
 #testing numbers 
-tracking <- read_csv("http://covidtracking.com/api/states/daily.csv") %>% 
+tracking <- read_csv("https://covidtracking.com/api/v1/states/daily.csv") %>% 
   clean_names() %>% 
-  mutate(date = ymd(date)) %>% 
-  rename(positive.tests = positive, negative.test = negative) %>% 
-  rename(death.track = death)
+  select(date, state, positive.tests = positive, negative.test = negative,
+         negative_increase, positive_increase) %>% 
+  mutate(date = ymd(date))
 
 csse_csvs <- tibble(dates = list.files("states")) %>% 
   mutate(dates = ymd(str_extract(dates, "[:digit:]+-[:digit:]+-[:digit:]+")))

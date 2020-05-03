@@ -3,6 +3,7 @@ library(lubridate)
 library(readxl)
 library(janitor)
 library(data.table)
+library(RCurl)
 
 
 today <- ymd(format(Sys.time(), "%Y-%m-%d"))
@@ -23,11 +24,11 @@ state.pop <- read_xlsx("initial_files/state_pop.xlsx") %>%
   select(state = abrv, population, region)
 
 #testing numbers 
-tracking <- read_csv("http://covidtracking.com/api/states/daily.csv") %>% 
+tracking <- read_csv("https://covidtracking.com/api/v1/states/daily.csv") %>% 
   clean_names() %>% 
-  mutate(date = ymd(date)) %>% 
-  rename(positive.tests = positive, negative.test = negative) %>% 
-  rename(death.track = death)
+  select(date, state, positive.tests = positive, negative.test = negative,
+         negative_increase, positive_increase) %>% 
+  mutate(date = ymd(date))
 
 csse_csvs <- tibble(dates = list.files("csse_files")) %>% 
   mutate(dates = ymd(str_extract(dates, "[:digit:]+-[:digit:]+-[:digit:]+")))
@@ -55,7 +56,7 @@ if (!(today %in% states.counties.hist.pull$date)) {
              date = date(date)) %>% 
       mutate(date = if_else(date == today, date, date - days(1)))
     
-    states.counties.hist<- states.counties.hist.pull %>% 
+    states.counties.hist2<- states.counties.hist.pull %>% 
       bind_rows(csse.today)
     
     fwrite(states.counties.hist, paste0("csse_files/states_counties_hist_",today,".csv"))
