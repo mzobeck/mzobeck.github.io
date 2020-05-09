@@ -38,9 +38,15 @@ csse_csvs <- tibble(dates = list.files("states")) %>%
 
 states.comp.pull <- read_csv(paste0("states/states_comp_",max(csse_csvs$dates),".csv")) 
 
+day <- max(csse_csvs$dates) + days(1)
 
-if (!(today %in% states.comp.pull$date)) {
-  url.tod <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/", format(today, "%m-%d-%Y"),".csv")
+if (day > today) {
+  states.comp <-  states.comp.pull
+}
+
+while (day <= today) {
+  
+  url.tod <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/", format(day, "%m-%d-%Y"),".csv")
   
   if(url.exists(url.tod)) { #check if today's csv is up
     
@@ -49,44 +55,22 @@ if (!(today %in% states.comp.pull$date)) {
       select(date = last_update, state = province_state, positive = confirmed, death = deaths) %>% 
       left_join(state.abrv) %>% 
       select(date, state = abrv, positive, death) %>% 
-      mutate(date = date(date)) %>% 
-      mutate(date = if_else(today == date, date, date - days(1))) %>% 
-      filter(!is.na(state)) 
+      mutate(date = day) %>% 
+    filter(!is.na(state)) 
     
     states.comp <- states.comp.pull %>% 
       bind_rows(new.states)
     
-    fwrite(states.comp, paste0("states/states_comp_",today,".csv"))
-  } else { #check if we have yesterday 
+    fwrite(states.comp, paste0("states/states_comp_",day,".csv"))
     
-    if (!(yesterday %in% states.comp.pull$date)) {
-      
-      url.yest <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/", format(yesterday, "%m-%d-%Y"),".csv")
-      
-      if(url.exists(url.yest)) {
-        
-        new.states <- read_csv(url.yest) %>% 
-          clean_names() %>% 
-          select(date = last_update, state = province_state, positive = confirmed, death = deaths) %>% 
-          left_join(state.abrv) %>% 
-          select(date, state = abrv, positive, death) %>% 
-          mutate(date = date(date)) %>% 
-          mutate(date = if_else(yesterday == date, date, date - days(1))) %>% 
-          filter(!is.na(state)) 
-        
-        states.comp <- states.comp.pull %>% 
-          bind_rows(new.states)
-        
-        fwrite(states.comp, paste0("states/states_comp_",yesterday,".csv"))
-      } else {
-        states.comp <- states.comp.pull
-    }  
-    } else {
+  } else {
+    
+    if (day == today) {
       states.comp <- states.comp.pull
     }
+    
   }
-} else {
-  states.comp <- states.comp.pull
+  day <- day + days(1)
 }
   
 states.comp <- states.comp %>% 

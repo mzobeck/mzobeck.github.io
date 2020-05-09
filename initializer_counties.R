@@ -37,64 +37,47 @@ states.counties.hist.pull <- read_csv(paste0("csse_files/states_counties_hist_",
   filter(!is.na(state)) 
 #there are unassigned states from the past 
 
+day <- max(csse_csvs$dates) + days(1)
 
-if (!(today %in% states.counties.hist.pull$date)) {
-  url.tod <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/", format(today, "%m-%d-%Y"),".csv")
+if (day > today) {
+  states.counties.hist <- states.counties.hist.pull
+}
+
+while (day <= today) {
+  
+  url.tod <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/", format(day, "%m-%d-%Y"),".csv")
   
   if(url.exists(url.tod)) { #check if today's csv is up
-    
-    csse.today<- read_csv(url.tod) %>% 
-      clean_names() %>% 
-      rename(state = province_state) %>%
-      filter(country_region == "US") %>% 
-      left_join(state.abrv) %>% 
-      pivot_longer(confirmed:deaths, names_to = "type", values_to = "value") %>% 
-      select(state = abrv, county = admin2, date = last_update, type, value, lat, long) %>% 
-      left_join(counties.pop) %>% 
-      select(state, county, population, date, type, value, lat, long) %>% 
-      mutate(type = ifelse(str_detect(type, "confir"), "cases",type),
-             date = date(date)) %>% 
-      mutate(date = if_else(date == today, date, date - days(1)))
-    
-    states.counties.hist2<- states.counties.hist.pull %>% 
-      bind_rows(csse.today)
-    
-    fwrite(states.counties.hist, paste0("csse_files/states_counties_hist_",today,".csv"))
-    
-  } else { #check if we have yesterday 
-    
-    if (!(yesterday %in% states.counties.hist.pull$date)) {
       
-      url.yest <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/", format(yesterday, "%m-%d-%Y"),".csv")
+      csse.today<- read_csv(url.tod) %>% 
+        clean_names() %>% 
+        rename(state = province_state) %>%
+        filter(country_region == "US") %>% 
+        left_join(state.abrv) %>% 
+        pivot_longer(confirmed:deaths, names_to = "type", values_to = "value") %>% 
+        select(state = abrv, county = admin2, date = last_update, type, value, lat, long) %>% 
+        left_join(counties.pop) %>% 
+        select(state, county, population, date, type, value, lat, long) %>% 
+        mutate(type = ifelse(str_detect(type, "confir"), "cases",type),
+               date = day - days(1))
       
-      if(url.exists(url.yest)) {
-        
-        csse.yesterday <- read_csv(url.yest) %>% 
-          clean_names() %>% 
-          rename(state = province_state) %>%
-          filter(country_region == "US") %>% 
-          left_join(state.abrv) %>% 
-          pivot_longer(confirmed:deaths, names_to = "type", values_to = "value") %>% 
-          select(state = abrv, county = admin2, date = last_update, type, value, lat, long) %>% 
-          left_join(counties.pop) %>% 
-          select(state, county, population, date, type, value, lat, long) %>% 
-          mutate(type = ifelse(str_detect(type, "confir"), "cases",type),
-                 date = date(date)) %>% 
-          mutate(date = if_else(date == today, date, date - days(1))) 
-        
-        states.counties.hist <- states.counties.hist.pull %>% 
-          bind_rows(csse.yesterday)
-        
-        fwrite(states.counties.hist, paste0("csse_files/states_counties_hist_",yesterday,".csv"))
-      } else {
-        states.counties.hist <- states.counties.hist.pull
-      }  
-    } else {
+      states.counties.hist <- states.counties.hist.pull %>% 
+        bind_rows(csse.today)
+      
+      fwrite(states.counties.hist, paste0("csse_files/states_counties_hist_",day,".csv"))
+    
+  } else {
+    
+    if (day == today) {
+      
       states.counties.hist <- states.counties.hist.pull
+      
     }
+    
   }
-} else {
-  states.counties.hist <- states.counties.hist.pull
+  
+  day <- day + days(1)
+  
 }
 
 states.counties <- states.counties.hist %>% 

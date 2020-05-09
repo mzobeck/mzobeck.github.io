@@ -168,16 +168,24 @@ states.comp2 <- states.comp %>%
 
 states.counties %>% ungroup %>%  select(date) %>% distinct %>% arrange(desc(date))
 
-miss426 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-24-2020.csv")
+miss426 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-26-2020.csv")
 miss427 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-27-2020.csv")
 miss428 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-28-2020.csv")
 miss429 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-29-2020.csv")
 miss430 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/04-30-2020.csv")
 miss501 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/05-01-2020.csv")
 miss502 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/05-02-2020.csv")
+miss503 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/05-03-2020.csv")
+miss504 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/05-04-2020.csv")
+miss505 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/05-05-2020.csv")
+miss506 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/05-06-2020.csv")
+miss507 <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/05-07-2020.csv") 
 
 
-missing <- bind_rows(miss429, miss430, miss501, miss428, miss502, miss426, miss427)
+
+
+missing <- bind_rows(miss429, miss430, miss501, miss428, miss502, miss426, miss427,
+                     miss503,miss504,miss505,miss506,miss507)
 
 csse.today<- missing %>% 
   clean_names() %>% 
@@ -189,8 +197,7 @@ csse.today<- missing %>%
   left_join(counties.pop) %>% 
   select(state, county, population, date, type, value, lat, long) %>% 
   mutate(type = ifelse(str_detect(type, "confir"), "cases",type),
-         date = date(date)) %>% 
-  mutate(date = if_else(date == today, date, date - days(1)))
+         date = date(date) - days(1)) 
 
 csse.today <- csse.today %>% 
   mutate(date = replace(date, date == "2020-05-03", ymd("2020-05-02")))
@@ -201,3 +208,5 @@ states.counties.hist.pull2 <- states.counties.hist.pull %>%
 
 states.counties.hist2 <- states.counties.hist.pull2 %>% 
   bind_rows(csse.today)
+
+fwrite(states.counties.hist2, paste0("csse_files/states_counties_hist_2020-05-07.csv"))
