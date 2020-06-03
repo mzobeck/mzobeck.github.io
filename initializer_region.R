@@ -46,6 +46,10 @@ if (day > today) {
 
 while (day <= today) {
   
+  prev.day <- day - days(1)
+  
+  states.comp.while <- read_csv(paste0("states/states_comp_",prev.day,".csv")) 
+  
   url.tod <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/", format(day, "%m-%d-%Y"),".csv")
   
   if(url.exists(url.tod)) { #check if today's csv is up
@@ -56,9 +60,9 @@ while (day <= today) {
       left_join(state.abrv) %>% 
       select(date, state = abrv, positive, death) %>% 
       mutate(date = day) %>% 
-    filter(!is.na(state)) 
+      filter(!is.na(state)) 
     
-    states.comp <- states.comp.pull %>% 
+    states.comp <- states.comp.while %>% 
       bind_rows(new.states)
     
     fwrite(states.comp, paste0("states/states_comp_",day,".csv"))
@@ -66,13 +70,13 @@ while (day <= today) {
   } else {
     
     if (day == today) {
-      states.comp <- states.comp.pull
+      states.comp <- states.comp.while
     }
     
   }
   day <- day + days(1)
 }
-  
+
 states.comp <- states.comp %>% 
   inner_join(target.states)
 
