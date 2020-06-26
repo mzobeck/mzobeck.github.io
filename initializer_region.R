@@ -38,7 +38,7 @@ csse_csvs <- tibble(dates = list.files("states")) %>%
 
 states.comp.pull <- read_csv(paste0("states/states_comp_",max(csse_csvs$dates),".csv")) 
 
-day <- max(csse_csvs$dates) + days(1)
+day <- max(states.comp.pull$date) + days(1)
 
 if (day > today) {
   states.comp <-  states.comp.pull
@@ -64,6 +64,8 @@ while (day <= today) {
     
     states.comp <- states.comp.while %>% 
       bind_rows(new.states)
+    
+    states.comp.pull <- states.comp
     
     fwrite(states.comp, paste0("states/states_comp_",day,".csv"))
     

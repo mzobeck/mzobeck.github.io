@@ -37,7 +37,7 @@ states.counties.hist.pull <- read_csv(paste0("csse_files/states_counties_hist_",
   filter(!is.na(state)) 
 #there are unassigned states from the past 
 
-day <- max(csse_csvs$dates) + days(1)
+day <- max(states.counties.hist.pull$date) + days(1)
 
 if (day > today) {
   states.counties.hist <- states.counties.hist.pull
